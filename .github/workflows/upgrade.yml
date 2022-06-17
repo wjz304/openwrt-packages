@@ -39,7 +39,7 @@ jobs:
     - name: Repo packages
       run: |
         cd $GITHUB_WORKSPACE
-        ./upgrade.sh
+        chmod +x ./upgrade.sh && ./upgrade.sh
         
 
     - name: Apply
