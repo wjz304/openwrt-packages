@@ -1,0 +1,57 @@
+
+name: Repo packages
+
+on:
+  push:
+  # push: 
+  #   branches:
+  #     - master
+  schedule:
+    - cron: 0 */6 * * *
+  watch:
+    types: started
+  repository_dispatch:
+
+
+jobs:
+  build:
+    if: github.event.repository.owner.id == github.event.sender.id
+    runs-on: Ubuntu-20.04
+
+    name: Update ${{matrix.target}}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [main]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Initialization environment
+      run : |
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]"
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        
+    - name: Repo packages
+      run: |
+        cd $GITHUB_WORKSPACE
+        ./upgrade.sh
+        
+
+    - name: Apply
+      env: 
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      run: |
+        git add .
+        git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
+        git push -f
+               
+    - name: Delete workflow runs
+      uses: Mattraks/delete-workflow-runs@main
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
