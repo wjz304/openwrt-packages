@@ -53,6 +53,10 @@ sed -i 's/luci-lib-ipkg/luci-base/g' luci-app-store/Makefile
 git_clone https://github.com/destan19/OpenAppFilter
 
 
+# 实时监控
+git_clone https://github.com/sirpdboy/luci-app-netdata
+
+
 # 钉钉企微推送
 git_clone https://github.com/zzsj0928/luci-app-pushbot
 
