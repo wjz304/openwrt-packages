@@ -13,9 +13,9 @@ function git_clone_b() {
 }
 
 function svn_co() {
-  rm -rf $2
-  svn co $1 $2 || true
-  rm -rf $2/.svn* $2/.git*
+  rm -rf $(basename $1 .git)
+  svn co $1 $(basename $1 .git) || true
+  rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
 
 
@@ -57,8 +57,31 @@ git_clone https://github.com/destan19/OpenAppFilter
 git_clone https://github.com/sirpdboy/luci-app-netdata
 
 
-# 钉钉企微推送
+# 网速测试
+git_clone https://github.com/sirpdboy/netspeedtest
+
+
+# 高级设置
+git_clone https://github.com/sirpdboy/luci-app-advanced
+
+
+# 全能推送
 git_clone https://github.com/zzsj0928/luci-app-pushbot
+
+
+# 文件管理
+git_clone https://github.com/xiaozhuai/luci-app-filebrowser
+
+
+# 定时任务
+git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
+
+
+# gowebdav
+svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
+svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
+
+
 
 
 # end
