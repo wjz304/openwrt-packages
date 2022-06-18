@@ -19,25 +19,45 @@ function svn_co() {
 }
 
 
+# Argon 主题
 git_clone_b https://github.com/jerrykuku/luci-theme-argon 18.06
 
+
+# Argon 主题配置插件
 git_clone https://github.com/jerrykuku/luci-app-argon-config
 sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 
 
+# HelloWorld 依赖
 git_clone https://github.com/fw876/helloworld
 git_clone https://github.com/xiaorouji/openwrt-passwall
 
+
+# HelloWorld
 git_clone https://github.com/jerrykuku/lua-maxminddb.git
 git_clone https://github.com/jerrykuku/luci-app-vssr.git
 
 
+# OpenClash
+git_clone https://github.com/vernesong/OpenClash.git
+rm -rf luci-app-openclash && mv -f OpenClash/luci-app-openclash . && rm -rf OpenClash
+
+
+# 应用商店
 git_clone https://github.com/linkease/istore-ui
 git_clone https://github.com/linkease/istore && mv -n istore/luci/* ./; rm -rf istore
 sed -i 's/luci-lib-ipkg/luci-base/g' luci-app-store/Makefile
 
 
+# 应用过滤
+git_clone https://github.com/destan19/OpenAppFilter
 
+
+# 钉钉企微推送
+git_clone https://github.com/zzsj0928/luci-app-pushbot
+
+
+# end
 rm -rf ./*/.svn*
 rm -rf ./*/.git*
 
