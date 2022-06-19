@@ -7,7 +7,7 @@ PKG_LICENSE:=MIT
 PKG_MAINTAINER:=drophair <https://github.com/big-tooth>
 LUCI_TITLE:=LuCI Support for socatg
 LUCI_PKGARCH:=all
-LUCI_DEPENDS:=+socat
+LUCI_DEPENDS:=+socatg
 # PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 include $(INCLUDE_DIR)/package.mk
