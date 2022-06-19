@@ -105,7 +105,7 @@ sed -i '/firstchild/d' luci-app-rebootschedule/luasrc/controller/rebootschedule.
 sed -i 's/"control"/"system"/g; s/Timing setting/定时任务/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 
 
-# SmartDNS
+# SmartDNS # 与 bypass 冲突
 git_clone https://github.com/pymumu/openwrt-smartdns 
 git_clone https://github.com/pymumu/luci-app-smartdns lede
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
