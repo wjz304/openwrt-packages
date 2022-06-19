@@ -1,4 +1,17 @@
+#
 #!/bin/bash
+# © 2022 GitHub, Inc.
+#====================================================================
+# Copyright (c) 2022 Ing
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/wjz304/openwrt-packages
+# File name: upgrade.sh
+# Description: OpenWrt packages update script
+#====================================================================
+
 
 function git_clone() {
   rm -rf $(basename $1 .git)
@@ -106,7 +119,9 @@ sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
 
 
 # gowebdav
+svn_co https://github.com/openwrt/packages/trunk/lang/golang
 svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
+sed -i 's/..\/..\/lang\/golang\/golang-package.mk/..\/golang\/golang-package.mk/g' gowebdav/Makefile
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 
