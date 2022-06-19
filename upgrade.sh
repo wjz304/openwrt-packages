@@ -3,18 +3,21 @@
 function git_clone() {
   rm -rf $(basename $1 .git)
   git clone --depth 1 $1 $(basename $1 .git) || true
+  # sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' $(basename $1 .git)/Makefile
   rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
 
 function git_clone_b() {
   rm -rf $(basename $1 .git)
   git clone --depth 1 -b $2 $1 $(basename $1 .git) || true
+  # sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' $(basename $1 .git)/Makefile
   rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
 
 function svn_co() {
   rm -rf $(basename $1 .git)
   svn co $1 $(basename $1 .git) || true
+  # sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' $(basename $1 .git)/Makefile
   rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
 
@@ -85,16 +88,16 @@ git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
 # SmartDNS
 git_clone https://github.com/pymumu/openwrt-smartdns 
 git_clone https://github.com/pymumu/luci-app-smartdns lede
-
+sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
 
 # gowebdav
-svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
-
+svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
+sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 
 # IP限速  # 未用，使用 "QoS Nftables 版"
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
-
+sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
 
 
 # end

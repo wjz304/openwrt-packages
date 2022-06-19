@@ -76,8 +76,8 @@ https://github.com/pymumu/luci-app-smartdns/tree/lede
 
 
 ### gowebdav
-https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
 https://github.com/immortalwrt/packages/tree/master/net/gowebdav  
+https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
 
 
 ### IP限速
