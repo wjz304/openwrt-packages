@@ -42,10 +42,12 @@ git_clone_b https://github.com/jerrykuku/luci-theme-argon 18.06
 # Argon 主题配置插件
 git_clone https://github.com/jerrykuku/luci-app-argon-config
 sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
+#sed -i 's/\"Argon 主题设置\"/\"主题设置\"/g' luci-app-argon-config/po/zh-cn/argon-config.po
 
 
 # HelloWorld 依赖
 git_clone https://github.com/fw876/helloworld
+
 
 # Passwall
 git_clone https://github.com/xiaorouji/openwrt-passwall
@@ -91,14 +93,17 @@ git_clone https://github.com/sirpdboy/luci-app-advanced
 git_clone https://github.com/zzsj0928/luci-app-pushbot
 
 
-# 文件管理
+# 文件浏览器
 git_clone https://github.com/xiaozhuai/luci-app-filebrowser
+sed -i 's/"services"/"nas"/g; s/Services/NAS/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
+cp -rf luci-app-filebrowser/po/zh_Hans/* luci-app-filebrowser/po/zh_cn
 
 
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
-sed -i "/firstchild/d" luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
-sed -i "s/\"control\"/\"services\"/g; s/Timing setting/定时任务/g" ./openwrt/luci/applications/luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
+sed -i '/firstchild/d' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
+sed -i 's/"control"/"system"/g; s/Timing setting/定时任务/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
+
 
 # SmartDNS
 git_clone https://github.com/pymumu/openwrt-smartdns 
@@ -118,6 +123,7 @@ git_clone https://github.com/MoZhonghua/openwrt-tailscale
 git_clone https://github.com/big-tooth/luci-app-socatg
 #sed -i 's/socat\r/socatg\r/g' luci-app-socatg/Makefile && sed -i 's/socat$/socatg/g' luci-app-socatg/Makefile
 
+
 # 网络向导
 svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
 svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickstart
@@ -125,11 +131,13 @@ sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
 
 
 # gowebdav
-svn_co https://github.com/openwrt/packages/trunk/lang/golang
 svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
-sed -i 's/..\/..\/lang\/golang\/golang-package.mk/..\/golang\/golang-package.mk/g' gowebdav/Makefile
+sed -i 's/..\/..\/lang\/golang\/golang-package.mk/$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang-package.mk/g' gowebdav/Makefile
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
+#sed -i '/"NAS"/d; /page/d' luci-app-gowebdav/luasrc/controller/gowebdav.lua
+#sed -i 's/\"nas\"/\"services\"/g' luci-app-gowebdav/luasrc/controller/gowebdav.lua
+
 
 # IP限速
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
