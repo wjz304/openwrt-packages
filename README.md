@@ -70,6 +70,11 @@ https://github.com/xiaozhuai/luci-app-filebrowser
 https://github.com/DevOpenWRT-Router/luci-app-rebootschedule  
 
 
+# SmartDNS
+https://github.com/pymumu/openwrt-smartdns 
+https://github.com/pymumu/luci-app-smartdns/tree/lede
+
+
 ### gowebdav
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
 https://github.com/immortalwrt/packages/tree/master/net/gowebdav  

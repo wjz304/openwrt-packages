@@ -34,17 +34,17 @@ git_clone https://github.com/xiaorouji/openwrt-passwall
 
 
 # HelloWorld
-git_clone https://github.com/jerrykuku/lua-maxminddb.git
-git_clone https://github.com/jerrykuku/luci-app-vssr.git
+git_clone https://github.com/jerrykuku/lua-maxminddb
+git_clone https://github.com/jerrykuku/luci-app-vssr
 
 
 # OpenClash
-git_clone https://github.com/vernesong/OpenClash.git
+git_clone https://github.com/vernesong/OpenClash
 rm -rf luci-app-openclash && mv -f OpenClash/luci-app-openclash . && rm -rf OpenClash
 
 
 # bypass  # 未用
-git_clone https://github.com/kiddin9/openwrt-bypass.git
+git_clone https://github.com/kiddin9/openwrt-bypass
 
 
 
@@ -80,6 +80,11 @@ git_clone https://github.com/xiaozhuai/luci-app-filebrowser
 
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
+
+
+# SmartDNS
+git_clone https://github.com/pymumu/openwrt-smartdns 
+git_clone https://github.com/pymumu/luci-app-smartdns lede
 
 
 # gowebdav
