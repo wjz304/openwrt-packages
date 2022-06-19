@@ -21,6 +21,9 @@ https://github.com/jerrykuku/luci-app-argon-config
 
 ### HelloWorld 依赖
 https://github.com/fw876/helloworld  
+
+
+### Passwall
 https://github.com/xiaorouji/openwrt-passwall  
 
 
@@ -70,9 +73,21 @@ https://github.com/xiaozhuai/luci-app-filebrowser
 https://github.com/DevOpenWRT-Router/luci-app-rebootschedule  
 
 
-# SmartDNS
+### SmartDNS
 https://github.com/pymumu/openwrt-smartdns 
 https://github.com/pymumu/luci-app-smartdns/tree/lede
+
+
+### ZeroTier
+https://github.com/rufengsuixing/luci-app-zerotier
+
+
+### Tailscale
+https://github.com/MoZhonghua/openwrt-tailscale
+
+
+### 网络向导
+https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart
 
 
 ### gowebdav

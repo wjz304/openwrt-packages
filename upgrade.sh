@@ -33,10 +33,12 @@ sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 
 # HelloWorld 依赖
 git_clone https://github.com/fw876/helloworld
+
+# Passwall
 git_clone https://github.com/xiaorouji/openwrt-passwall
 
 
-# HelloWorld
+# HelloWorld  # 依赖 helloworld 和 openwrt-passwall
 git_clone https://github.com/jerrykuku/lua-maxminddb
 git_clone https://github.com/jerrykuku/luci-app-vssr
 
@@ -46,9 +48,8 @@ git_clone https://github.com/vernesong/OpenClash
 rm -rf luci-app-openclash && mv -f OpenClash/luci-app-openclash . && rm -rf OpenClash
 
 
-# bypass  # 未用
+# bypass
 git_clone https://github.com/kiddin9/openwrt-bypass
-
 
 
 # 应用商店
@@ -69,7 +70,7 @@ git_clone https://github.com/sirpdboy/luci-app-netdata
 git_clone https://github.com/sirpdboy/netspeedtest
 
 
-# 高级设置  # 未用
+# 高级设置
 git_clone https://github.com/sirpdboy/luci-app-advanced
 
 
@@ -90,14 +91,31 @@ git_clone https://github.com/pymumu/openwrt-smartdns
 git_clone https://github.com/pymumu/luci-app-smartdns lede
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
 
+
+# ZeroTier
+git_clone https://github.com/rufengsuixing/luci-app-zerotier
+
+# Tailscale
+git_clone https://github.com/MoZhonghua/openwrt-tailscale
+
+
+# 网络向导
+svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickstart
+sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
+
+
 # gowebdav
 svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 
-# IP限速  # 未用，使用 "QoS Nftables 版"
+# IP限速
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
+
+
+
+
 
 
 # end
