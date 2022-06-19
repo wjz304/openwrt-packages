@@ -8,19 +8,19 @@ local api = require "luci.model.cbi.filebrowser.api"
 function index()
     if not nixio.fs.access("/etc/config/filebrowser") then return end
 
-    entry({"admin", "services"}, firstchild(), "Services", 44).dependent = false
-    entry({"admin", "services", "filebrowser"}, cbi("filebrowser/settings"),
+    entry({"admin", "nas"}, firstchild(), "NAS", 44).dependent = false
+    entry({"admin", "nas", "filebrowser"}, cbi("filebrowser/settings"),
           _("File Browser"), 2).dependent = true
 
-    entry({"admin", "services", "filebrowser", "check"}, call("action_check")).leaf =
+    entry({"admin", "nas", "filebrowser", "check"}, call("action_check")).leaf =
         true
-    entry({"admin", "services", "filebrowser", "download"}, call("action_download")).leaf =
+    entry({"admin", "nas", "filebrowser", "download"}, call("action_download")).leaf =
         true
-    entry({"admin", "services", "filebrowser", "status"}, call("act_status")).leaf =
+    entry({"admin", "nas", "filebrowser", "status"}, call("act_status")).leaf =
         true
-    entry({"admin", "services", "filebrowser", "get_log"}, call("get_log")).leaf =
+    entry({"admin", "nas", "filebrowser", "get_log"}, call("get_log")).leaf =
         true
-    entry({"admin", "services", "filebrowser", "clear_log"}, call("clear_log")).leaf =
+    entry({"admin", "nas", "filebrowser", "clear_log"}, call("clear_log")).leaf =
         true
 end
 
