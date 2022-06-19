@@ -115,7 +115,7 @@ git_clone https://github.com/MoZhonghua/openwrt-tailscale
 
 # IPv6 端口转发
 git_clone https://github.com/big-tooth/luci-app-socatg
-
+sed -i 's/socat\r/socatg\r/g' luci-app-socatg/Makefile && sed -i 's/socat$/socatg/g' luci-app-socatg/Makefile
 
 # 网络向导
 svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
