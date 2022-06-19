@@ -43,6 +43,11 @@ git_clone https://github.com/vernesong/OpenClash.git
 rm -rf luci-app-openclash && mv -f OpenClash/luci-app-openclash . && rm -rf OpenClash
 
 
+# bypass  # 未用
+git_clone https://github.com/kiddin9/openwrt-bypass.git
+
+
+
 # 应用商店
 git_clone https://github.com/linkease/istore-ui
 git_clone https://github.com/linkease/istore && mv -n istore/luci/* ./; rm -rf istore
@@ -61,7 +66,7 @@ git_clone https://github.com/sirpdboy/luci-app-netdata
 git_clone https://github.com/sirpdboy/netspeedtest
 
 
-# 高级设置
+# 高级设置  # 未用
 git_clone https://github.com/sirpdboy/luci-app-advanced
 
 
@@ -81,6 +86,9 @@ git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
 
+
+# IP限速  # 未用，使用 "QoS Nftables 版"
+svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
 
 
 
