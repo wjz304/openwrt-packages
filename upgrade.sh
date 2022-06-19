@@ -97,7 +97,8 @@ git_clone https://github.com/xiaozhuai/luci-app-filebrowser
 
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
-
+sed -i "/firstchild/d" luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
+sed -i "s/\"control\"/\"services\"/g; s/Timing setting/定时任务/g" ./openwrt/luci/applications/luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 
 # SmartDNS
 git_clone https://github.com/pymumu/openwrt-smartdns 
@@ -115,7 +116,7 @@ git_clone https://github.com/MoZhonghua/openwrt-tailscale
 
 # IPv6 端口转发
 git_clone https://github.com/big-tooth/luci-app-socatg
-sed -i 's/socat\r/socatg\r/g' luci-app-socatg/Makefile && sed -i 's/socat$/socatg/g' luci-app-socatg/Makefile
+#sed -i 's/socat\r/socatg\r/g' luci-app-socatg/Makefile && sed -i 's/socat$/socatg/g' luci-app-socatg/Makefile
 
 # 网络向导
 svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
