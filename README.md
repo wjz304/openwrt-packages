@@ -86,6 +86,10 @@ https://github.com/rufengsuixing/luci-app-zerotier
 https://github.com/MoZhonghua/openwrt-tailscale
 
 
+### IPv6 端口转发
+https://github.com/big-tooth/luci-app-socatg
+
+
 ### 网络向导
 https://github.com/linkease/nas-packages/tree/master/network/services/quickstart
 https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart

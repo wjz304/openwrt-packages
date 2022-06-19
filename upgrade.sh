@@ -108,8 +108,13 @@ sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/M
 # ZeroTier
 git_clone https://github.com/rufengsuixing/luci-app-zerotier
 
+
 # Tailscale
 git_clone https://github.com/MoZhonghua/openwrt-tailscale
+
+
+# IPv6 端口转发
+git_clone https://github.com/big-tooth/luci-app-socatg
 
 
 # 网络向导
