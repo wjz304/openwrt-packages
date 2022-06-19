@@ -48,7 +48,8 @@ jobs:
       run: |
         git add .
         git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
-        git push -f 2>&1
+        git push -f  
+        exit 0
                
     - name: Delete workflow runs
       uses: Mattraks/delete-workflow-runs@main
