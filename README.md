@@ -87,6 +87,7 @@ https://github.com/MoZhonghua/openwrt-tailscale
 
 
 ### 网络向导
+https://github.com/linkease/nas-packages/tree/master/network/services/quickstart
 https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart
 
 

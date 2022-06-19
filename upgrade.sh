@@ -100,6 +100,7 @@ git_clone https://github.com/MoZhonghua/openwrt-tailscale
 
 
 # 网络向导
+svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
 svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickstart
 sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
 
