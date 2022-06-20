@@ -23,8 +23,12 @@ https://github.com/jerrykuku/luci-app-argon-config
 https://github.com/kiddin9/openwrt-bypass  
 
 
+# openwrt-passwall 依赖
+https://github.com/xiaorouji/openwrt-passwall
+
+
 ### Passwall
-https://github.com/xiaorouji/openwrt-passwall  
+https://github.com/xiaorouji/openwrt-passwall/tree/luci/luci-app-passwall 
 
 
 ### Passwall2
