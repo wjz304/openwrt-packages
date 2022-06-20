@@ -5,15 +5,15 @@ function index()
 return
 end
 
-entry({"admin","vpn"}, firstchild(), "VPN", 45).dependent = false
+entry({"admin","services"}, firstchild(), "Services", 45).dependent = false
 
-entry({"admin", "vpn", "zerotier"},firstchild(), _("ZeroTier")).dependent = false
+entry({"admin", "services", "zerotier"},firstchild(), _("ZeroTier")).dependent = false
 
-entry({"admin", "vpn", "zerotier", "general"},cbi("zerotier/settings"), _("Base Setting"), 1)
-entry({"admin", "vpn", "zerotier", "log"},form("zerotier/info"), _("Interface Info"), 2)
-entry({"admin", "vpn", "zerotier", "manual"},cbi("zerotier/manual"), _("Manual Config"), 3)
+entry({"admin", "services", "zerotier", "general"},cbi("zerotier/settings"), _("Base Setting"), 1)
+entry({"admin", "services", "zerotier", "log"},form("zerotier/info"), _("Interface Info"), 2)
+entry({"admin", "services", "zerotier", "manual"},cbi("zerotier/manual"), _("Manual Config"), 3)
 
-entry({"admin","vpn","zerotier","status"},call("act_status"))
+entry({"admin","services","zerotier","status"},call("act_status"))
 end
 
 function act_status()
