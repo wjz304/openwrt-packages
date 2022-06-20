@@ -49,11 +49,13 @@ sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 git_clone https://github.com/kiddin9/openwrt-bypass
 
 
-# Passwall
+# openwrt-passwall 依赖
 git_clone https://github.com/xiaorouji/openwrt-passwall
 
+# Passwall  # 依赖 openwrt-passwall
+svn_co https://github.com/xiaorouji/openwrt-passwall/branches/luci/luci-app-passwall
 
-# Passwall2
+# Passwall2  # 依赖 openwrt-passwall
 svn_co https://github.com/xiaorouji/openwrt-passwall2/trunk/luci-app-passwall2
 
 
