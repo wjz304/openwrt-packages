@@ -19,12 +19,20 @@ https://github.com/jerrykuku/luci-theme-argon/tree/18.06
 https://github.com/jerrykuku/luci-app-argon-config  
 
 
-### HelloWorld 依赖
-https://github.com/fw876/helloworld  
+### bypass
+https://github.com/kiddin9/openwrt-bypass  
 
 
 ### Passwall
 https://github.com/xiaorouji/openwrt-passwall  
+
+
+### Passwall2
+https://github.com/xiaorouji/openwrt-passwall2/tree/main/luci-app-passwall2  
+
+
+### HelloWorld 依赖
+https://github.com/fw876/helloworld  
 
 
 ### HelloWorld
@@ -36,8 +44,16 @@ https://github.com/jerrykuku/luci-app-vssr
 https://github.com/vernesong/OpenClash/tree/master/luci-app-openclash  
 
 
-### bypass
-git_clone https://github.com/kiddin9/openwrt-bypass  
+### Clash
+https://github.com/frainzy1477/luci-app-clash  
+
+
+### iKoolProxy 滤广告
+https://github.com/yaof2/luci-app-ikoolproxy  
+
+
+### AdGuard Home
+https://github.com/rufengsuixing/luci-app-adguardhome  
 
 
 ### 应用商店
@@ -45,32 +61,33 @@ https://github.com/linkease/istore-ui
 https://github.com/linkease/istore/tree/main/luci/luci-app-store  
 
 
-### 应用过滤
-https://github.com/destan19/OpenAppFilter  
+### 网络向导
+https://github.com/linkease/nas-packages/tree/master/network/services/quickstart
+https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart
 
 
 ### 实时监控
 https://github.com/sirpdboy/luci-app-netdata  
 
 
-### 网速测试
-https://github.com/sirpdboy/netspeedtest  
-
-
 ### 高级设置
 https://github.com/sirpdboy/luci-app-advanced  
 
 
-## 全能推送
-https://github.com/zzsj0928/luci-app-pushbot  
-
-
-### 文件管理
-https://github.com/xiaozhuai/luci-app-filebrowser  
-
-
 ### 定时任务
 https://github.com/DevOpenWRT-Router/luci-app-rebootschedule  
+
+
+### 应用过滤
+https://github.com/destan19/OpenAppFilter  
+
+
+### 网速测试
+https://github.com/sirpdboy/netspeedtest  
+
+
+### 全能推送
+https://github.com/zzsj0928/luci-app-pushbot  
 
 
 ### SmartDNS
@@ -90,18 +107,18 @@ https://github.com/MoZhonghua/openwrt-tailscale
 https://github.com/big-tooth/luci-app-socatg
 
 
-### 网络向导
-https://github.com/linkease/nas-packages/tree/master/network/services/quickstart
-https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart
+### IP限速
+https://github.com/immortalwrt/luci/tree/master/applications/luci-app-eqos
+
+
+### 文件浏览器
+https://github.com/xiaozhuai/luci-app-filebrowser  
 
 
 ### gowebdav
 https://github.com/immortalwrt/packages/tree/master/net/gowebdav  
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
 
-
-### IP限速
-https://github.com/immortalwrt/luci/tree/master/applications/luci-app-eqos
 
 
 ## 鸣谢

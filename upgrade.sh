@@ -45,12 +45,20 @@ sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 #sed -i 's/\"Argon 主题设置\"/\"主题设置\"/g' luci-app-argon-config/po/zh-cn/argon-config.po
 
 
-# HelloWorld 依赖
-git_clone https://github.com/fw876/helloworld
+# bypass
+git_clone https://github.com/kiddin9/openwrt-bypass
 
 
 # Passwall
 git_clone https://github.com/xiaorouji/openwrt-passwall
+
+
+# Passwall2
+svn_co https://github.com/xiaorouji/openwrt-passwall2/trunk/luci-app-passwall2
+
+
+# HelloWorld 依赖
+git_clone https://github.com/fw876/helloworld
 
 
 # HelloWorld  # 依赖 helloworld 和 openwrt-passwall
@@ -63,8 +71,16 @@ git_clone https://github.com/vernesong/OpenClash
 rm -rf luci-app-openclash && mv -f OpenClash/luci-app-openclash . && rm -rf OpenClash
 
 
-# bypass
-git_clone https://github.com/kiddin9/openwrt-bypass
+# Clash
+git_clone https://github.com/frainzy1477/luci-app-clash
+
+
+# iKoolProxy 滤广告
+git_clone https://github.com/yaof2/luci-app-ikoolproxy
+
+
+# AdGuard Home
+git_clone https://github.com/rufengsuixing/luci-app-adguardhome
 
 
 # 应用商店
@@ -73,36 +89,36 @@ git_clone https://github.com/linkease/istore && mv -n istore/luci/* ./; rm -rf i
 sed -i 's/luci-lib-ipkg/luci-base/g' luci-app-store/Makefile
 
 
-# 应用过滤
-git_clone https://github.com/destan19/OpenAppFilter
+# 网络向导
+svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
+svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickstart
+sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
 
 
 # 实时监控
 git_clone https://github.com/sirpdboy/luci-app-netdata
 
 
-# 网速测试
-git_clone https://github.com/sirpdboy/netspeedtest
-
-
 # 高级设置
 git_clone https://github.com/sirpdboy/luci-app-advanced
-
-
-# 全能推送
-git_clone https://github.com/zzsj0928/luci-app-pushbot
-
-
-# 文件浏览器
-git_clone https://github.com/xiaozhuai/luci-app-filebrowser
-sed -i 's/"services"/"nas"/g; s/Services/NAS/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
-cp -rf luci-app-filebrowser/po/zh_Hans/* luci-app-filebrowser/po/zh_cn
 
 
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
 sed -i '/firstchild/d' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 sed -i 's/"control"/"system"/g; s/Timing setting/定时任务/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
+
+
+# 应用过滤
+git_clone https://github.com/destan19/OpenAppFilter
+
+
+# 网速测试
+git_clone https://github.com/sirpdboy/netspeedtest
+
+
+# 全能推送
+git_clone https://github.com/zzsj0928/luci-app-pushbot
 
 
 # SmartDNS # 与 bypass 冲突
@@ -113,6 +129,7 @@ sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/M
 
 # ZeroTier
 git_clone https://github.com/rufengsuixing/luci-app-zerotier
+sed -i 's/"vpn"/"services"/g; s/VPN/Services/g' luci-app-zerotier/luasrc/controller/zerotier.lua
 
 
 # Tailscale
@@ -124,10 +141,15 @@ git_clone https://github.com/big-tooth/luci-app-socatg
 #sed -i 's/socat\r/socatg\r/g' luci-app-socatg/Makefile && sed -i 's/socat$/socatg/g' luci-app-socatg/Makefile
 
 
-# 网络向导
-svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
-svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickstart
-sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
+# IP限速
+svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
+sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
+
+
+# 文件浏览器
+git_clone https://github.com/xiaozhuai/luci-app-filebrowser
+sed -i 's/"services"/"nas"/g; s/Services/NAS/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
+cp -rf luci-app-filebrowser/po/zh_Hans/* luci-app-filebrowser/po/zh_cn
 
 
 # gowebdav
@@ -137,13 +159,6 @@ svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 #sed -i '/"NAS"/d; /page/d' luci-app-gowebdav/luasrc/controller/gowebdav.lua
 #sed -i 's/\"nas\"/\"services\"/g' luci-app-gowebdav/luasrc/controller/gowebdav.lua
-
-
-# IP限速
-svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
-sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
-
-
 
 
 
