@@ -124,9 +124,9 @@ git_clone https://github.com/zzsj0928/luci-app-pushbot
 
 
 # SmartDNS # 与 bypass 冲突
-git_clone https://github.com/pymumu/openwrt-smartdns 
-git_clone https://github.com/pymumu/luci-app-smartdns lede
-sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
+#git_clone https://github.com/pymumu/openwrt-smartdns 
+#git_clone https://github.com/pymumu/luci-app-smartdns lede
+#sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
 
 
 # ZeroTier
