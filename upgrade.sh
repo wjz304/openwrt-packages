@@ -108,7 +108,7 @@ git_clone https://github.com/sirpdboy/luci-app-advanced
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
 sed -i '/firstchild/d' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
-sed -i 's/"control"/"system"/g; s/Timing setting/定时任务/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
+sed -i 's/"control"/"system"/g; s/"Timing setting"/"定时任务"/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 
 
 # 应用过滤
@@ -131,7 +131,7 @@ sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/M
 
 # ZeroTier
 git_clone https://github.com/rufengsuixing/luci-app-zerotier
-sed -i 's/"vpn"/"services"/g; s/VPN/Services/g' luci-app-zerotier/luasrc/controller/zerotier.lua
+sed -i 's/"vpn"/"services"/g; s/"VPN"/"Services"/g' luci-app-zerotier/luasrc/controller/zerotier.lua
 
 
 # Tailscale
@@ -150,7 +150,7 @@ sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makef
 
 # 文件浏览器
 git_clone https://github.com/xiaozhuai/luci-app-filebrowser
-sed -i 's/"services"/"nas"/g; s/Services/NAS/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
+sed -i 's/"services"/"nas"/g; s/"Services"/"NAS"/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
 cp -rf luci-app-filebrowser/po/zh_Hans/* luci-app-filebrowser/po/zh_cn
 
 
