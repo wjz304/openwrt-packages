@@ -85,6 +85,12 @@ git_clone https://github.com/yaof2/luci-app-ikoolproxy
 git_clone https://github.com/rufengsuixing/luci-app-adguardhome
 
 
+# SmartDNS # 与 bypass 冲突
+#git_clone https://github.com/pymumu/openwrt-smartdns 
+#git_clone https://github.com/pymumu/luci-app-smartdns lede
+#sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
+
+
 # 应用商店
 git_clone https://github.com/linkease/istore-ui
 git_clone https://github.com/linkease/istore && mv -n istore/luci/* ./; rm -rf istore
@@ -121,12 +127,6 @@ git_clone https://github.com/sirpdboy/netspeedtest
 
 # 全能推送
 git_clone https://github.com/zzsj0928/luci-app-pushbot
-
-
-# SmartDNS # 与 bypass 冲突
-#git_clone https://github.com/pymumu/openwrt-smartdns 
-#git_clone https://github.com/pymumu/luci-app-smartdns lede
-#sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
 
 
 # ZeroTier

@@ -94,11 +94,6 @@ https://github.com/sirpdboy/netspeedtest
 https://github.com/zzsj0928/luci-app-pushbot  
 
 
-### SmartDNS
-https://github.com/pymumu/openwrt-smartdns 
-https://github.com/pymumu/luci-app-smartdns/tree/lede
-
-
 ### ZeroTier
 https://github.com/rufengsuixing/luci-app-zerotier
 
