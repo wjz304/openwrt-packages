@@ -168,7 +168,7 @@ sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/M
 
 
 # vm-tools
-git_clone https://github.com/fangli/openwrt-vm-tools
+# git_clone https://github.com/fangli/openwrt-vm-tools
 
 
 

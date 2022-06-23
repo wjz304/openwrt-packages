@@ -123,9 +123,6 @@ https://github.com/immortalwrt/packages/tree/master/net/gowebdav
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
 
 
-# vm-tools
-https://github.com/fangli/openwrt-vm-tools
-
 
 
 
