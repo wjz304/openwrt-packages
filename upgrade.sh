@@ -143,6 +143,10 @@ git_clone https://github.com/big-tooth/luci-app-socatg
 #sed -i 's/socat\r/socatg\r/g' luci-app-socatg/Makefile && sed -i 's/socat$/socatg/g' luci-app-socatg/Makefile
 
 
+# beardropper
+git_clone https://github.com/NateLol/luci-app-beardropper
+
+
 # IP限速
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
@@ -161,6 +165,10 @@ svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 #sed -i '/"NAS"/d; /page/d' luci-app-gowebdav/luasrc/controller/gowebdav.lua
 #sed -i 's/\"nas\"/\"services\"/g' luci-app-gowebdav/luasrc/controller/gowebdav.lua
+
+
+# vm-tools
+git_clone https://github.com/fangli/openwrt-vm-tools
 
 
 

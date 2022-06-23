@@ -106,6 +106,10 @@ https://github.com/MoZhonghua/openwrt-tailscale
 https://github.com/big-tooth/luci-app-socatg
 
 
+# beardropper
+https://github.com/NateLol/luci-app-beardropper
+
+
 ### IP限速
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-eqos
 
@@ -117,6 +121,11 @@ https://github.com/xiaozhuai/luci-app-filebrowser
 ### gowebdav
 https://github.com/immortalwrt/packages/tree/master/net/gowebdav  
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
+
+
+# vm-tools
+https://github.com/fangli/openwrt-vm-tools
+
 
 
 
