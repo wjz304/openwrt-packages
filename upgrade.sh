@@ -173,8 +173,15 @@ sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/M
 
 
 
-# end
+# clean
 rm -rf ./*/.svn*
 rm -rf ./*/.git*
 
+
+# push
+git add .
+git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
+git push -f
+
+#end
 exit 0
