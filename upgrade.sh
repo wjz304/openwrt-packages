@@ -178,10 +178,5 @@ rm -rf ./*/.svn*
 rm -rf ./*/.git*
 
 
-# push
-git add .
-git commit -am "update $(date +%Y-%m-%d" "%H:%M:%S)"
-git push -f
-
 #end
 exit 0

@@ -1,3 +1,9 @@
+#
+# Copyright (C) 2022 Ing <https://github.com/wjz304>
+# 
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
 
 name: Repo packages
 
@@ -22,24 +28,39 @@ jobs:
         target: [main]
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-    - name: Initialization environment
-      run : |
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "github-actions[bot]"
-        sudo timedatectl set-timezone "Asia/Shanghai"
-        
-    - name: Repo packages
-      run: |
-        cd $GITHUB_WORKSPACE
-        chmod +x ./upgrade.sh && ./upgrade.sh
+      - name: Initialization environment
+        run : |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          sudo timedatectl set-timezone "Asia/Shanghai"
+          
+      - name: Repo packages
+        run: |
+          cd $GITHUB_WORKSPACE
+          chmod +x ./upgrade.sh && ./upgrade.sh
                
-    - name: Delete workflow runs
-      uses: Mattraks/delete-workflow-runs@main
-      with:
-        retain_days: 1
-        keep_minimum_runs: 3
+      - name: Check for changes
+        run: |
+          if [ -n "$(git status -s | grep -v -w timestamp)" ];then
+            echo "ischanges=true" >> $GITHUB_ENV
+          else
+            echo "ischanges=false" >> $GITHUB_ENV
+          fi
+
+      - name: Commit and Push
+        if: env.ischanges == 'true'
+        run: |
+          git add .
+          git commit -m "update $(date +%Y-%m-%d" "%H:%M:%S)"
+          git push -f
+
+      - name: Delete workflow runs
+        uses: Mattraks/delete-workflow-runs@main
+        with:
+          retain_days: 1
+          keep_minimum_runs: 3
