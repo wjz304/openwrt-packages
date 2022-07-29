@@ -9,7 +9,7 @@ LUCI_TITLE:=LuCI support for quickstart
 LUCI_DEPENDS:=+quickstart
 LUCI_PKGARCH:=all
 
-PKG_VERSION:=0.5.3-2
+PKG_VERSION:=0.5.4-1
 # PKG_RELEASE MUST be empty for luci.mk
 PKG_RELEASE:=
 
