@@ -23,12 +23,12 @@ https://github.com/jerrykuku/luci-app-argon-config
 https://github.com/kiddin9/openwrt-bypass  
 
 
-# openwrt-passwall 依赖
-https://github.com/xiaorouji/openwrt-passwall
+### openwrt-passwall 依赖
+https://github.com/xiaorouji/openwrt-passwall  
 
 
 ### Passwall
-https://github.com/xiaorouji/openwrt-passwall/tree/luci/luci-app-passwall 
+https://github.com/xiaorouji/openwrt-passwall/tree/luci/luci-app-passwall  
 
 
 ### Passwall2
@@ -66,8 +66,8 @@ https://github.com/linkease/istore/tree/main/luci/luci-app-store
 
 
 ### 网络向导
-https://github.com/linkease/nas-packages/tree/master/network/services/quickstart
-https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart
+https://github.com/linkease/nas-packages/tree/master/network/services/quickstart  
+https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart  
 
 
 ### 实时监控
@@ -95,23 +95,23 @@ https://github.com/zzsj0928/luci-app-pushbot
 
 
 ### ZeroTier
-https://github.com/rufengsuixing/luci-app-zerotier
+https://github.com/rufengsuixing/luci-app-zerotier  
 
 
 ### Tailscale
-https://github.com/MoZhonghua/openwrt-tailscale
+https://github.com/MoZhonghua/openwrt-tailscale  
 
 
 ### IPv6 端口转发
-https://github.com/big-tooth/luci-app-socatg
+https://github.com/big-tooth/luci-app-socatg  
 
 
-# beardropper
-https://github.com/NateLol/luci-app-beardropper
+### beardropper
+https://github.com/NateLol/luci-app-beardropper  
 
 
 ### IP限速
-https://github.com/immortalwrt/luci/tree/master/applications/luci-app-eqos
+https://github.com/immortalwrt/luci/tree/master/applications/luci-app-eqos  
 
 
 ### 文件浏览器
