@@ -16,7 +16,7 @@ function index()
     entry({"istore"}, call("istore_backend")).leaf=true
 end
 
-function sink_socket(sock, io_err) 
+local function sink_socket(sock, io_err) 
   if sock then 
     return function(chunk, err) 
       if not chunk then 
@@ -31,16 +31,66 @@ function sink_socket(sock, io_err)
 end
 
 local function session_retrieve(sid, allowed_users)
-        local sdat = util.ubus("session", "get", { ubus_rpc_session = sid })
-        if type(sdat) == "table" and   
-           type(sdat.values) == "table" and
-           type(sdat.values.token) == "string" and
-           (not allowed_users or
-            util.contains(allowed_users, sdat.values.username))
-        then                     
-                return sid, sdat.values
-        end
-        return nil, nil
+  local sdat = util.ubus("session", "get", { ubus_rpc_session = sid })
+  if type(sdat) == "table" and
+      type(sdat.values) == "table" and
+      type(sdat.values.token) == "string" and
+      (not allowed_users or
+      util.contains(allowed_users, sdat.values.username))
+  then
+      return sid, sdat.values
+  end
+  return nil, nil
+end
+
+local function get_session(sid)
+  if sid then
+    return session_retrieve(sid, nil)
+  end
+  return nil, nil
+end
+
+local function chunksource(sock, buffer)
+	buffer = buffer or ""
+	return function()
+		local output
+		local _, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
+		while not count and #buffer <= 1024 do
+			local newblock, code = sock:recv(1024 - #buffer)
+			if not newblock then
+				return nil, code
+			end
+			buffer = buffer .. newblock  
+			_, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
+		end
+		count = tonumber(count, 16)
+		if not count then
+			return nil, -1, "invalid encoding"
+		elseif count == 0 then
+			return nil
+		elseif count + 2 <= #buffer - endp then
+			output = buffer:sub(endp+1, endp+count)
+			buffer = buffer:sub(endp+count+3)
+			return output
+		else
+			output = buffer:sub(endp+1, endp+count)
+			buffer = ""
+			if count - #output > 0 then
+				local remain, code = sock:recvall(count-#output)
+				if not remain then
+					return nil, code
+				end
+				output = output .. remain
+				count, code = sock:recvall(2)
+			else
+				count, code = sock:recvall(count+2-#buffer+endp)
+			end
+			if not count then
+				return nil, code
+			end
+			return output
+		end
+	end
 end
 
 function istore_backend() 
@@ -63,13 +113,13 @@ function istore_backend()
       input[#input+1] = string.sub(k, start_len+1, string.len(k)) .. ": " .. v
     end
   end
-  local sid = http.getcookie("sysauth")
-  if sid then
-    local sid, sdat = session_retrieve(sid, nil)
-    if sdat ~= nil then
-      input[#input+1] = "X-Forwarded-Sid: " .. sid
-      input[#input+1] = "X-Forwarded-Token: " .. sdat.token
-    end
+  local sid, sdat = get_session(http.getcookie("sysauth"))
+  if sdat == nil then
+    sid, sdat = get_session(http.getcookie('sysauth_%s' % { http.getenv("HTTPS") == "on" and "https" or "http" }))
+  end
+  if sdat ~= nil then
+    input[#input+1] = "X-Forwarded-Sid: " .. sid
+    input[#input+1] = "X-Forwarded-Token: " .. sdat.token
   end
   -- input[#input+1] = "X-Forwarded-For: " .. http.getenv("REMOTE_HOST") ..":".. http.getenv("REMOTE_PORT")
   local num = tonumber(http.getenv("CONTENT_LENGTH")) or 0
@@ -131,45 +181,3 @@ function istore_backend()
   sock:close()
 end
 
-function chunksource(sock, buffer)
-	buffer = buffer or ""
-	return function()
-		local output
-		local _, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
-		while not count and #buffer <= 1024 do
-			local newblock, code = sock:recv(1024 - #buffer)
-			if not newblock then
-				return nil, code
-			end
-			buffer = buffer .. newblock  
-			_, endp, count = buffer:find("^([0-9a-fA-F]+);?.-\r\n")
-		end
-		count = tonumber(count, 16)
-		if not count then
-			return nil, -1, "invalid encoding"
-		elseif count == 0 then
-			return nil
-		elseif count + 2 <= #buffer - endp then
-			output = buffer:sub(endp+1, endp+count)
-			buffer = buffer:sub(endp+count+3)
-			return output
-		else
-			output = buffer:sub(endp+1, endp+count)
-			buffer = ""
-			if count - #output > 0 then
-				local remain, code = sock:recvall(count-#output)
-				if not remain then
-					return nil, code
-				end
-				output = output .. remain
-				count, code = sock:recvall(2)
-			else
-				count, code = sock:recvall(count+2-#buffer+endp)
-			end
-			if not count then
-				return nil, code
-			end
-			return output
-		end
-	end
-end
