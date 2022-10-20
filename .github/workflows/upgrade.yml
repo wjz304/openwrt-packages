@@ -19,7 +19,7 @@ jobs:
     runs-on: Ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@main
         with:
           fetch-depth: 0
 
@@ -49,8 +49,8 @@ jobs:
           git commit -m "update $(date +%Y-%m-%d" "%H:%M:%S)"
           git push -f
 
-      - name: Delete workflow runs
-        uses: Mattraks/delete-workflow-runs@main
-        with:
-          retain_days: 1
-          keep_minimum_runs: 3
+      #- name: Delete workflow runs
+      #  uses: Mattraks/delete-workflow-runs@v2
+      #  with:
+      #    retain_days: 1
+      #    keep_minimum_runs: 3
