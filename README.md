@@ -12,7 +12,7 @@ make menuconfig
 
 # 在此 鸣谢各位插件作者
 
-## 本仓库所有插件
+## 本仓库集成的各插件原库
 
 ### Argon 主题
 https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
