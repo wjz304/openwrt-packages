@@ -10,7 +10,10 @@ sed -i '$a src-git ing https://github.com/wjz304/openwrt-packages' feeds.conf.de
 make menuconfig
 ```
 
+# 在此 鸣谢各位插件作者
+
 ## 本仓库所有插件
+
 ### Argon 主题
 https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
 
@@ -19,7 +22,7 @@ https://github.com/jerrykuku/luci-theme-argon/tree/18.06
 https://github.com/jerrykuku/luci-app-argon-config  
 
 
-# 关机
+### 关机
 https://github.com/esirplayground/luci-app-poweroff
 
 
