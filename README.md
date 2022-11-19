@@ -19,6 +19,10 @@ https://github.com/jerrykuku/luci-theme-argon/tree/18.06
 https://github.com/jerrykuku/luci-app-argon-config  
 
 
+# 关机
+https://github.com/esirplayground/luci-app-poweroff
+
+
 ### bypass
 https://github.com/kiddin9/openwrt-bypass  
 
