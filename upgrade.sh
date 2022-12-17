@@ -119,7 +119,7 @@ git_clone https://github.com/sirpdboy/luci-app-advanced
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
 sed -i '/firstchild/d' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 sed -i 's/"control"/"system"/g; s/"Timing setting"/"定时任务"/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
-
+chmod 755 luci-app-rebootschedule/root/etc/init.d/rebootschedule
 
 # 应用过滤
 git_clone https://github.com/destan19/OpenAppFilter
