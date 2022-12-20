@@ -22,6 +22,10 @@ https://github.com/jerrykuku/luci-theme-argon/tree/18.06
 https://github.com/jerrykuku/luci-app-argon-config  
 
 
+### 在线用户
+https://github.com/rufengsuixing/luci-app-onliner  
+
+
 ### 关机
 https://github.com/esirplayground/luci-app-poweroff
 

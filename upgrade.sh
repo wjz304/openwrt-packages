@@ -45,6 +45,10 @@ sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 #sed -i 's/\"Argon 主题设置\"/\"主题设置\"/g' luci-app-argon-config/po/zh-cn/argon-config.po
 
 
+# 在线用户
+git_clone https://github.com/rufengsuixing/luci-app-onliner
+
+
 # 关机
 git_clone https://github.com/esirplayground/luci-app-poweroff
 
