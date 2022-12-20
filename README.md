@@ -23,8 +23,7 @@ https://github.com/jerrykuku/luci-app-argon-config
 
 
 ### 在线用户
-https://github.com/rufengsuixing/luci-app-onliner  
-
+https://github.com/selfcan/luci-app-onliner
 
 ### 关机
 https://github.com/esirplayground/luci-app-poweroff

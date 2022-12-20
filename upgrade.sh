@@ -46,7 +46,7 @@ sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 
 
 # 在线用户
-git_clone https://github.com/rufengsuixing/luci-app-onliner
+git_clone https://github.com/selfcan/luci-app-onliner
 
 
 # 关机
@@ -158,12 +158,13 @@ git_clone https://github.com/NateLol/luci-app-beardropper
 # IP限速
 svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
+cp -rf luci-app-eqos/po/zh_Hans luci-app-eqos/po/zh_cn
 
 
 # 文件浏览器
 git_clone https://github.com/xiaozhuai/luci-app-filebrowser
 sed -i 's/"services"/"nas"/g; s/"Services"/"NAS"/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
-cp -rf luci-app-filebrowser/po/zh_Hans/* luci-app-filebrowser/po/zh_cn
+cp -rf luci-app-filebrowser/po/zh_Hans luci-app-filebrowser/po/zh_cn
 
 
 # gowebdav
@@ -173,6 +174,7 @@ svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 #sed -i '/"NAS"/d; /page/d' luci-app-gowebdav/luasrc/controller/gowebdav.lua
 #sed -i 's/\"nas\"/\"services\"/g' luci-app-gowebdav/luasrc/controller/gowebdav.lua
+cp -rf luci-app-gowebdav/po/zh_Hans luci-app-gowebdav/po/zh_cn
 
 
 # vm-tools
