@@ -47,7 +47,7 @@ sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 
 # 在线用户
 git_clone https://github.com/selfcan/luci-app-onliner
-
+chmod 755 luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 
 # 关机
 git_clone https://github.com/esirplayground/luci-app-poweroff
