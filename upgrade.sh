@@ -160,6 +160,7 @@ svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
 cp -rf luci-app-eqos/po/zh_Hans luci-app-eqos/po/zh-cn
 sed -i 's/zh_Hans/zh_CN/g' luci-app-eqos/po/zh-cn/eqos.po
+chmod 755 luci-app-eqos/root/etc/init.d/eqos
 
 
 # 文件浏览器
