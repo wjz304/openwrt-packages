@@ -131,7 +131,7 @@ git_clone https://github.com/destan19/OpenAppFilter
 
 # 网速测试
 git_clone https://github.com/sirpdboy/netspeedtest
-
+sed -i 's/DEPENDS:=\$(GO_ARCH_DEPENDS)$/DEPENDS:=\$(GO_ARCH_DEPENDS) +upx/g' netspeedtest/speedtest-web/Makefile
 
 # 全能推送
 git_clone https://github.com/zzsj0928/luci-app-pushbot
