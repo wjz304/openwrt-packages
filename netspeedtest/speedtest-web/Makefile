@@ -51,7 +51,7 @@ define Package/speedtest-web
   CATEGORY:=Network
   TITLE:=speedtest-web is a Openwrt package for speedtest-go, a Go backend for LibreSpeed
   URL:=https://github.com/librespeed/speedtest-go
-  DEPENDS:=$(GO_ARCH_DEPENDS)
+  DEPENDS:=$(GO_ARCH_DEPENDS) +upx
 endef
 
 define Package/speedtest-web/description
