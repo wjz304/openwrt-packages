@@ -15,14 +15,9 @@
 
 function git_clone() {
   rm -rf $(basename $1 .git)
-  git clone --depth 1 $1 $(basename $1 .git) || true
-  # sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' $(basename $1 .git)/Makefile
-  rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
-}
-
-function git_clone_b() {
-  rm -rf $(basename $1 .git)
-  git clone --depth 1 -b $2 $1 $(basename $1 .git) || true
+  branch=""
+  [ ! -z "$2" ] && branch="-b $2"
+  git clone --depth 1 ${branch} $1 $(basename $1 .git) || true
   # sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' $(basename $1 .git)/Makefile
   rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
@@ -36,7 +31,7 @@ function svn_co() {
 
 
 # Argon 主题
-git_clone_b https://github.com/jerrykuku/luci-theme-argon 18.06
+git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
 
 
 # Argon 主题配置插件
