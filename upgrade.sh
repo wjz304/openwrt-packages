@@ -30,6 +30,16 @@ function svn_co() {
 }
 
 
+# DDNS-GO
+git_clone https://github.com/sirpdboy/luci-app-ddns-go
+# 日志启动好像不是+8区的时间格式
+# 默认检测时间是300秒 源码路径 luci-app-ddns-go/ddnsgo/file/ddnsgo.init line=46
+#                    系统路径 etc/init.d/ddnsgo
+
+
+# 一键自动格式化分区、扩容、自动挂载插件
+git_clone https://github.com/sirpdboy/luci-app-partexp
+
 # Argon 主题
 git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
 
