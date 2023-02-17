@@ -30,6 +30,10 @@ function svn_co() {
 }
 
 
+# lucky
+git_clone https://github.com/sirpdboy/luci-app-lucky
+#和DDNS-GO只能选择其中的一个就可以了，已经涵盖ddns-go了
+
 # DDNS-GO
 git_clone https://github.com/sirpdboy/luci-app-ddns-go
 # 日志启动好像不是+8区的时间格式 >> 原因找到了，因为读取的是主板时间
