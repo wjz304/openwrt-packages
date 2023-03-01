@@ -14,8 +14,17 @@ make menuconfig
 
 ## 本仓库集成的各插件原库
 
-### Argon 主题
-https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
+
+### lucky
+https://github.com/sirpdboy/luci-app-lucky  
+
+
+### DDNS-GO
+https://github.com/sirpdboy/luci-app-ddns-go
+
+
+### ~~Argon 主题~~
+~~https://github.com/jerrykuku/luci-theme-argon/tree/18.06~~
 
 
 ### Argon 主题配置插件
@@ -27,6 +36,10 @@ https://github.com/selfcan/luci-app-onliner
 
 ### 关机
 https://github.com/esirplayground/luci-app-poweroff
+
+
+### 自动挂载
+https://github.com/sirpdboy/luci-app-partexp  
 
 
 ### bypass
@@ -69,6 +82,11 @@ https://github.com/yaof2/luci-app-ikoolproxy
 ### AdGuard Home
 https://github.com/rufengsuixing/luci-app-adguardhome  
 
+
+
+###  ~~SmartDNS~~
+~~https://github.com/pymumu/openwrt-smartdns~~  
+~~https://github.com/pymumu/luci-app-smartdns/tree/lede~~  
 
 ### 应用商店
 https://github.com/linkease/istore-ui  
@@ -133,6 +151,9 @@ https://github.com/immortalwrt/packages/tree/master/net/gowebdav
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
 
 
+
+### ~~vm-tools~~
+~~https://github.com/fangli/openwrt-vm-tools~~  
 
 
 

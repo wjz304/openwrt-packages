@@ -41,11 +41,9 @@ git_clone https://github.com/sirpdboy/luci-app-ddns-go
 #                    系统路径 etc/init.d/ddnsgo
 # >> 300秒为本地校验时长，5分钟检测一次共计5次=25分钟左右会和域名商比对
 
-# 一键自动格式化分区、扩容、自动挂载插件
-git_clone https://github.com/sirpdboy/luci-app-partexp
 
-# Argon 主题
-git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
+# # Argon 主题
+# git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
 
 
 # Argon 主题配置插件
@@ -60,6 +58,10 @@ chmod 755 luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 
 # 关机
 git_clone https://github.com/esirplayground/luci-app-poweroff
+
+
+# 一键自动格式化分区、扩容、自动挂载插件
+git_clone https://github.com/sirpdboy/luci-app-partexp
 
 
 # bypass
