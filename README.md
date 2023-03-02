@@ -23,8 +23,8 @@ https://github.com/sirpdboy/luci-app-lucky
 https://github.com/sirpdboy/luci-app-ddns-go
 
 
-### ~~Argon 主题~~
-~~https://github.com/jerrykuku/luci-theme-argon/tree/18.06~~
+### Argon 主题
+https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
 
 
 ### Argon 主题配置插件

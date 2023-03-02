@@ -42,14 +42,14 @@ git_clone https://github.com/sirpdboy/luci-app-ddns-go
 # >> 300秒为本地校验时长，5分钟检测一次共计5次=25分钟左右会和域名商比对
 
 
-# # Argon 主题
-# git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
+# Argon 主题
+git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
 
 
 # Argon 主题配置插件
 git_clone https://github.com/jerrykuku/luci-app-argon-config
 sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
-#sed -i 's/\"Argon 主题设置\"/\"主题设置\"/g' luci-app-argon-config/po/zh-cn/argon-config.po
+sed -i 's/\"Argon 主题设置\"/\"主题设置\"/g' luci-app-argon-config/po/zh-cn/argon-config.po
 
 
 # 在线用户
