@@ -55,7 +55,7 @@ https://github.com/xiaorouji/openwrt-passwall2/tree/main/luci-app-passwall2
 
 
 ### bypass
-https://github.com/kiddin9/openwrt-bypass
+https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass
 
 ### HelloWorld 依赖
 https://github.com/fw876/helloworld 
