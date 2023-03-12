@@ -69,8 +69,9 @@ git_clone https://github.com/sirpdboy/luci-app-partexp
 
 
 # bypass
-git_clone https://github.com/kiddin9/openwrt-bypass
-sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
+#git_clone https://github.com/kiddin9/openwrt-bypass
+#sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
+#库删了？？
 
 # openwrt-passwall 依赖
 git_clone https://github.com/xiaorouji/openwrt-passwall
