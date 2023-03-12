@@ -42,10 +42,6 @@ https://github.com/esirplayground/luci-app-poweroff
 https://github.com/sirpdboy/luci-app-partexp  
 
 
-### bypass
-https://github.com/kiddin9/openwrt-bypass  
-
-
 ### openwrt-passwall 依赖
 https://github.com/xiaorouji/openwrt-passwall  
 
