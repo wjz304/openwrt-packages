@@ -15,8 +15,8 @@ make menuconfig
 ## 本仓库集成的各插件原库
 
 
-### lucky
-https://github.com/sirpdboy/luci-app-lucky  
+### gdy666/lucky
+https://github.com/gdy666/luci-app-lucky
 
 
 ### DDNS-GO
