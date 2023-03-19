@@ -13,14 +13,18 @@ on:
     - cron: 0 */6 * * *
   workflow_dispatch:
 
-
 jobs:
   update:
-    runs-on: Ubuntu-20.04
+    strategy:
+      matrix:
+        branch: [ openwrt, lede ]
+
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@main
         with:
+          ref: ${{ matrix.branch }}
           fetch-depth: 0
 
       - name: Initialization environment
@@ -32,7 +36,11 @@ jobs:
       - name: Repo packages
         run: |
           cd $GITHUB_WORKSPACE
-          chmod +x ./upgrade.sh && ./upgrade.sh
+          if [ -f "upgrade.sh" ]; then
+            chmod +x ./upgrade.sh && ./upgrade.sh ${{ matrix.branch }}
+          else
+            curl -skL https://raw.githubusercontent.com/wjz304/openwrt-packages/main/upgrade.sh | bash -s ${{ matrix.branch }}
+          fi
                
       - name: Check for changes
         run: |
@@ -46,7 +54,7 @@ jobs:
         if: env.ischanges == 'true'
         run: |
           git add .
-          git commit -m "update $(date +%Y-%m-%d" "%H:%M:%S)"
+          git commit -m "${{ matrix.branch }} update $(date +%Y-%m-%d" "%H:%M:%S)"
           git push -f
 
       #- name: Delete workflow runs

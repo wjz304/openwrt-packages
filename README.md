@@ -2,8 +2,17 @@
 [openwrt-packages](https://github.com/wjz304/openwrt-packages)
 
 ## 使用
+Openwrt:
 ```
-sed -i '$a src-git ing https://github.com/wjz304/openwrt-packages' feeds.conf.default
+sed -i '$a src-git ing https://github.com/wjz304/openwrt-packages;openwrt' feeds.conf.default
+./scripts/feeds clean
+./scripts/feeds update -a
+./scripts/feeds install -a
+make menuconfig
+```
+Lede:
+```
+sed -i '$a src-git ing https://github.com/wjz304/openwrt-packages;lede' feeds.conf.default
 ./scripts/feeds clean
 ./scripts/feeds update -a
 ./scripts/feeds install -a
@@ -13,15 +22,6 @@ make menuconfig
 # 在此 鸣谢各位插件作者
 
 ## 本仓库集成的各插件原库
-
-
-### gdy666/lucky
-https://github.com/gdy666/luci-app-lucky
-
-
-### DDNS-GO
-https://github.com/sirpdboy/luci-app-ddns-go
-
 
 ### Argon 主题
 https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
@@ -33,6 +33,7 @@ https://github.com/jerrykuku/luci-app-argon-config
 
 ### 在线用户
 https://github.com/selfcan/luci-app-onliner
+
 
 ### 关机
 https://github.com/esirplayground/luci-app-poweroff
@@ -56,6 +57,7 @@ https://github.com/xiaorouji/openwrt-passwall2/tree/main/luci-app-passwall2
 
 ### bypass
 https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass
+
 
 ### HelloWorld 依赖
 https://github.com/fw876/helloworld 
@@ -82,10 +84,10 @@ https://github.com/yaof2/luci-app-ikoolproxy
 https://github.com/rufengsuixing/luci-app-adguardhome  
 
 
-
 ###  ~~SmartDNS~~
 ~~https://github.com/pymumu/openwrt-smartdns~~  
 ~~https://github.com/pymumu/luci-app-smartdns/tree/lede~~  
+
 
 ### 应用商店
 https://github.com/linkease/istore-ui  
@@ -96,6 +98,13 @@ https://github.com/linkease/istore/tree/main/luci/luci-app-store
 https://github.com/linkease/nas-packages/tree/master/network/services/quickstart  
 https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart  
 
+
+### lucky
+https://github.com/gdy666/luci-app-lucky
+
+
+### DDNS-GO
+https://github.com/sirpdboy/luci-app-ddns-go
 
 ### 实时监控
 https://github.com/sirpdboy/luci-app-netdata  
@@ -148,7 +157,6 @@ https://github.com/xiaozhuai/luci-app-filebrowser
 ### gowebdav
 https://github.com/immortalwrt/packages/tree/master/net/gowebdav  
 https://github.com/immortalwrt/luci/tree/master/applications/luci-app-gowebdav  
-
 
 
 ### ~~vm-tools~~

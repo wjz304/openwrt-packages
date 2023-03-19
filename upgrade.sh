@@ -13,6 +13,8 @@
 #====================================================================
 
 
+BRANCH=${1:-openwrt}
+
 function git_clone() {
   rm -rf $(basename $1 .git)
   branch=""
@@ -29,25 +31,12 @@ function svn_co() {
   rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
 
-
-# lucky
-#git_clone https://github.com/sirpdboy/luci-app-lucky
-#和DDNS-GO只能选择其中的一个就可以了，已经涵盖ddns-go了
-#
-# 拉取gdy666/lucky主线
-git_clone https://github.com/gdy666/luci-app-lucky
-sed -i 's/#LUCI_DEPENDS:=+lucky/LUCI_DEPENDS:=+lucky/g' luci-app-lucky/luci-app-lucky/Makefile
-
-# DDNS-GO
-git_clone https://github.com/sirpdboy/luci-app-ddns-go
-# 日志启动好像不是+8区的时间格式 >> 原因找到了，因为读取的是主板时间
-# 默认检测时间是300秒 源码路径 luci-app-ddns-go/ddnsgo/file/ddnsgo.init line=46
-#                    系统路径 etc/init.d/ddnsgo
-# >> 300秒为本地校验时长，5分钟检测一次共计5次=25分钟左右会和域名商比对
+# r8125
+svn_co https://github.com/wjz304/openwrt-packages/trunk/r8125
 
 
 # Argon 主题
-git_clone https://github.com/jerrykuku/luci-theme-argon 18.06
+git_clone https://github.com/jerrykuku/luci-theme-argon `[ "${BRANCH}" == "lede" ] && echo "18.06"`
 
 
 # Argon 主题配置插件
@@ -136,6 +125,20 @@ git_clone https://github.com/sirpdboy/luci-app-netdata
 # 高级设置
 git_clone https://github.com/sirpdboy/luci-app-advanced
 
+# lucky
+# git_clone https://github.com/sirpdboy/luci-app-lucky
+# 和DDNS-GO只能选择其中的一个就可以了，已经涵盖ddns-go了
+#
+# 拉取gdy666/lucky主线
+git_clone https://github.com/gdy666/luci-app-lucky
+sed -i 's/#LUCI_DEPENDS:=+lucky/LUCI_DEPENDS:=+lucky/g' luci-app-lucky/luci-app-lucky/Makefile
+
+# DDNS-GO
+git_clone https://github.com/sirpdboy/luci-app-ddns-go
+# 日志启动好像不是+8区的时间格式 >> 原因找到了，因为读取的是主板时间
+# 默认检测时间是300秒 源码路径 luci-app-ddns-go/ddnsgo/file/ddnsgo.init line=46
+#                    系统路径 etc/init.d/ddnsgo
+# >> 300秒为本地校验时长，5分钟检测一次共计5次=25分钟左右会和域名商比对
 
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
