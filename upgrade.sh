@@ -31,6 +31,12 @@ function svn_co() {
   rm -rf $(basename $1 .git)/.svn* $(basename $1 .git)/.git*
 }
 
+
+
+# default-settings
+[ "${BRANCH}" == "openwrt" ] && svn_co https://github.com/wjz304/openwrt-packages/trunk/default-settings
+
+
 # r8125
 svn_co https://github.com/wjz304/openwrt-packages/trunk/r8125
 
@@ -53,16 +59,14 @@ chmod 755 luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 git_clone https://github.com/esirplayground/luci-app-poweroff
 
 
-# 一键自动格式化分区、扩容、自动挂载插件
+# 自动格式化分区、扩容、自动挂载
 git_clone https://github.com/sirpdboy/luci-app-partexp
 
 
 # bypass
 #git_clone https://github.com/kiddin9/openwrt-bypass
-#sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
-#库删了？？
-#重新拉取package
 svn_co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-bypass
+#sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
 
 # openwrt-passwall 依赖
 git_clone https://github.com/xiaorouji/openwrt-passwall
@@ -118,13 +122,6 @@ svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickst
 sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
 
 
-# 实时监控
-git_clone https://github.com/sirpdboy/luci-app-netdata
-
-
-# 高级设置
-git_clone https://github.com/sirpdboy/luci-app-advanced
-
 # lucky
 # git_clone https://github.com/sirpdboy/luci-app-lucky
 # 和DDNS-GO只能选择其中的一个就可以了，已经涵盖ddns-go了
@@ -140,11 +137,21 @@ git_clone https://github.com/sirpdboy/luci-app-ddns-go
 #                    系统路径 etc/init.d/ddnsgo
 # >> 300秒为本地校验时长，5分钟检测一次共计5次=25分钟左右会和域名商比对
 
+
+# 实时监控
+git_clone https://github.com/sirpdboy/luci-app-netdata
+
+
+# 高级设置
+git_clone https://github.com/sirpdboy/luci-app-advanced
+
+
 # 定时任务
 git_clone https://github.com/DevOpenWRT-Router/luci-app-rebootschedule
 sed -i '/firstchild/d' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 sed -i 's/"control"/"system"/g; s/"Timing setting"/"定时任务"/g' luci-app-rebootschedule/luasrc/controller/rebootschedule.lua
 chmod 755 luci-app-rebootschedule/root/etc/init.d/rebootschedule
+
 
 # 应用过滤
 git_clone https://github.com/destan19/OpenAppFilter

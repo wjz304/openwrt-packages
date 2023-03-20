@@ -21,7 +21,16 @@ make menuconfig
 
 # 在此 鸣谢各位插件作者
 
-## 本仓库集成的各插件原库
+## 本仓库集成的各插件原库  
+
+
+### default-settings
+https://github.com/coolsnowwolf/lede/tree/master/package/lean/default-settings 
+
+
+### r8125
+this repo  
+
 
 ### Argon 主题
 https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
@@ -39,8 +48,12 @@ https://github.com/selfcan/luci-app-onliner
 https://github.com/esirplayground/luci-app-poweroff
 
 
-### 自动挂载
+### 自动格式化分区、扩容、自动挂载
 https://github.com/sirpdboy/luci-app-partexp  
+
+
+### bypass
+https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass
 
 
 ### openwrt-passwall 依赖
@@ -53,10 +66,6 @@ https://github.com/xiaorouji/openwrt-passwall/tree/luci/luci-app-passwall
 
 ### Passwall2
 https://github.com/xiaorouji/openwrt-passwall2/tree/main/luci-app-passwall2  
-
-
-### bypass
-https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass
 
 
 ### HelloWorld 依赖
