@@ -36,6 +36,10 @@ this repo
 https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
 
 
+### Pink 主题
+https://github.com/virualv/luci-theme-pink  
+
+
 ### Argon 主题配置插件
 https://github.com/jerrykuku/luci-app-argon-config  
 
