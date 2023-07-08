@@ -1,9 +1,39 @@
 
-luci-app-lucky lucky分支
-在 https://github.com/sirpdboy/luci-app-lucky 的基础上修改
-试图适配lucky非标准openwrt编译打包的lucky ipk包.
+## 怎么确定当前系统CPU架构下载相应lucky核心包
+复制以下指令到终端执行,根据显示下载文件名含有架构字符串的ipk包
+```
+cd /tmp ;if [ -f /usr/bin/curl ];then curl -sSO http://777.gdy666.com/lucky-files/luckyarch.sh;else wget -O http://777.gdy666.com/lucky-files/luckyarch.sh;fi;sh luckyarch.sh 
+```
+
+
+## 1.X升级2.X版本注意
+
+第一种方法：先通过lucky后台上传tar.gz方式升级lucky
+再安装luci-app-lucky luci-i18n-lucky-zh-cn 两个ipk包
+
+lucky后台备份配置，卸载干净
+opkg remove lucky
+opkg remove luci-i18n-lucky-zh-cn
+opkg remove luci-app-lucky
+
+再安装 lucky luci-app-lucky luci-i18n-lucky-zh-cn 三个ipk包
+
+
+lucky后台备份配置
+再安装ipk
+
 本分支本人自用,仅供参考.
-配置文件架构和https://github.com/sirpdboy/luci-app-lucky 版本可能存在冲突,测试使用前先卸载删除干净之前文件.
+配置文件架构和https://github.com/sirpdboy/luci-app-lucky 版本可能存在冲突,
+
+替换版本前请使用前备份下载lucky配置
+执行
+opkg remove lucky
+opkg remove luci-i18n-lucky-zh-cn
+opkg remove luci-app-lucky
+卸载删除干净之前文件.
+
+
+
 
 最新版本编译好的IPK包请在
 https://url21.ctfile.com/d/44547821-55537427-a5525e?p=16601
