@@ -299,8 +299,10 @@ do
 				end
 			end
 		else
-			if v.currentNode == nil and v.delete then
-				v.delete()
+			if v.currentNode == nil then
+				if v.delete then
+					v.delete()
+				end
 				CONFIG[k] = nil
 			end
 		end
@@ -933,7 +935,7 @@ local function select_node(nodes, config)
 			config.set(config, server)
 		end
 	else
-		config.set(config, nil)
+		config.set(config, "nil")
 	end
 end
 
