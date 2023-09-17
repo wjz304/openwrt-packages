@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2022 Ing <https://github.com/wjz304>
-# 
+#
 # This is free software, licensed under the MIT License.
 # See /LICENSE for more information.
 #
@@ -17,7 +17,7 @@ jobs:
   update:
     strategy:
       matrix:
-        branch: [ openwrt, lede ]
+        branch: [openwrt, lede]
 
     runs-on: ubuntu-latest
     steps:
@@ -28,11 +28,11 @@ jobs:
           fetch-depth: 0
 
       - name: Initialization environment
-        run : |
+        run: |
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
           sudo timedatectl set-timezone "Asia/Shanghai"
-          
+
       - name: Repo packages
         run: |
           cd $GITHUB_WORKSPACE
@@ -41,7 +41,7 @@ jobs:
           else
             curl -skL https://raw.githubusercontent.com/wjz304/openwrt-packages/main/upgrade.sh | bash -s ${{ matrix.branch }}
           fi
-               
+
       - name: Check for changes
         run: |
           if [ -n "$(git status -s | grep -v -w timestamp)" ];then
