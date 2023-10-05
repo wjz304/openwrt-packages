@@ -1,5 +1,5 @@
 # openwrt-packages
-[openwrt-packages](https://github.com/wjz304/openwrt-packages)
+[openwrt-packages](https://github.com/arthur97172/openwrt-packages)
 
 ## 使用
 Openwrt:
@@ -56,8 +56,8 @@ https://github.com/esirplayground/luci-app-poweroff
 https://github.com/sirpdboy/luci-app-partexp  
 
 
-### bypass
-https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass
+### bypass 移除
+~~https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass~~  
 
 
 ### openwrt-passwall 依赖
@@ -98,8 +98,8 @@ https://github.com/rufengsuixing/luci-app-adguardhome
 
 
 ###  ~~SmartDNS~~
-~~https://github.com/pymumu/openwrt-smartdns~~  
-~~https://github.com/pymumu/luci-app-smartdns/tree/lede~~  
+https://github.com/pymumu/openwrt-smartdns
+https://github.com/pymumu/luci-app-smartdns/tree/lede
 
 
 ### 应用商店
