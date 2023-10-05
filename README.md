@@ -4,7 +4,7 @@
 ## 使用
 Openwrt:
 ```
-sed -i '$a src-git ing https://github.com/arthur997172/openwrt-packages;openwrt' feeds.conf.default
+sed -i '$a src-git ing https://github.com/arthur97172/openwrt-packages;openwrt' feeds.conf.default
 ./scripts/feeds clean
 ./scripts/feeds update -a
 ./scripts/feeds install -a
