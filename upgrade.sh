@@ -86,7 +86,7 @@ git_clone https://github.com/sirpdboy/luci-app-partexp
 
 # bypass
 #git_clone https://github.com/kiddin9/openwrt-bypass
-svn_co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-bypass
+##取消的是这一行Arthur svn_co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-bypass
 #sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
 
 # openwrt-passwall 依赖
@@ -119,8 +119,8 @@ git_clone https://github.com/yaof2/luci-app-ikoolproxy
 git_clone https://github.com/rufengsuixing/luci-app-adguardhome
 
 # SmartDNS # 与 bypass 冲突
-#git_clone https://github.com/pymumu/openwrt-smartdns
-#git_clone https://github.com/pymumu/luci-app-smartdns lede
+git_clone https://github.com/pymumu/openwrt-smartdns
+git_clone https://github.com/pymumu/luci-app-smartdns lede
 #sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-smartdns/Makefile
 
 # 应用商店
