@@ -50,6 +50,20 @@ function git_clone() {
   _lang $(basename $1 .git)
 }
 
+function git_co() {
+  rm -rf ${1//*\/}
+  rm -rf /tmp/git_co
+  branch=""
+  [ ! -z "$3" ] && branch="-b $3"
+  git clone --depth 1 ${branch} $2 /tmp/git_co || true
+  mkdir -p ${1//*\/}
+  cp -rf /tmp/git_co/$1/* ${1//*\/}
+  rm -rf /tmp/git_co
+  # sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' $(basename $1 .git)/Makefile
+  rm -rf ${1//*\/}/.svn* ${1//*\/}/.git*
+  _lang ${1//*\/}
+}
+
 function svn_co() {
   rm -rf $(basename $1 .git)
   svn co $1 $(basename $1 .git) || true
@@ -59,10 +73,10 @@ function svn_co() {
 }
 
 # default-settings
-[ "${BRANCH}" == "openwrt" ] && svn_co https://github.com/wjz304/openwrt-packages/trunk/default-settings
+[ "${BRANCH}" == "openwrt" ] && git_co default-settings https://github.com/wjz304/openwrt-packages
 
 # r8125
-svn_co https://github.com/wjz304/openwrt-packages/trunk/r8125
+git_co r8125 https://github.com/wjz304/openwrt-packages 
 
 # Pink 主题
 git_clone https://github.com/virualv/luci-theme-pink
@@ -86,17 +100,17 @@ git_clone https://github.com/sirpdboy/luci-app-partexp
 
 # bypass
 #git_clone https://github.com/kiddin9/openwrt-bypass
-svn_co https://github.com/kiddin9/openwrt-packages/trunk/luci-app-bypass
+git_co luci-app-bypass https://github.com/kiddin9/openwrt-packages
 #sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
 
 # openwrt-passwall 依赖
 git_clone https://github.com/xiaorouji/openwrt-passwall
 
 # Passwall  # 依赖 openwrt-passwall
-svn_co https://github.com/xiaorouji/openwrt-passwall/branches/luci/luci-app-passwall
+git_co luci-app-passwall https://github.com/xiaorouji/openwrt-passwall
 
 # Passwall2  # 依赖 openwrt-passwall
-svn_co https://github.com/xiaorouji/openwrt-passwall2/trunk/luci-app-passwall2
+git_co luci-app-passwall2 https://github.com/xiaorouji/openwrt-passwall2
 
 # HelloWorld 依赖
 git_clone https://github.com/fw876/helloworld
@@ -130,8 +144,8 @@ rm -rf istore
 sed -i 's/luci-lib-ipkg/luci-base/g' luci-app-store/Makefile
 
 # 网络向导
-svn_co https://github.com/linkease/nas-packages/trunk/network/services/quickstart
-svn_co https://github.com/linkease/nas-packages-luci/trunk/luci/luci-app-quickstart
+git_co network/services/quickstart https://github.com/linkease/nas-packages
+git_co luci/luci-app-quickstart https://github.com/linkease/nas-packages-luci
 sed -i 's/ +luci-app-store//g' luci-app-quickstart/Makefile
 
 # lucky
@@ -186,7 +200,7 @@ git_clone https://github.com/big-tooth/luci-app-socatg
 git_clone https://github.com/NateLol/luci-app-beardropper
 
 # IP限速
-svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-eqos
+git_co applications/luci-app-eqos https://github.com/immortalwrt/luci
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-eqos/Makefile
 chmod 755 luci-app-eqos/root/etc/init.d/eqos
 
@@ -195,9 +209,9 @@ git_clone https://github.com/xiaozhuai/luci-app-filebrowser
 sed -i 's/"services"/"nas"/g; s/"Services"/"NAS"/g' luci-app-filebrowser/luasrc/controller/filebrowser.lua
 
 # gowebdav
-svn_co https://github.com/immortalwrt/packages/trunk/net/gowebdav
+git_co net/gowebdav https://github.com/immortalwrt/packages
 sed -i 's/..\/..\/lang\/golang\/golang-package.mk/$(TOPDIR)\/feeds\/packages\/lang\/golang\/golang-package.mk/g' gowebdav/Makefile
-svn_co https://github.com/immortalwrt/luci/trunk/applications/luci-app-gowebdav
+git_co applications/luci-app-gowebdav https://github.com/immortalwrt/luci
 sed -i 's/..\/..\/luci.mk/$(TOPDIR)\/feeds\/luci\/luci.mk/g' luci-app-gowebdav/Makefile
 #sed -i '/"NAS"/d; /page/d' luci-app-gowebdav/luasrc/controller/gowebdav.lua
 #sed -i 's/\"nas\"/\"services\"/g' luci-app-gowebdav/luasrc/controller/gowebdav.lua
