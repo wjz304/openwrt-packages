@@ -25,7 +25,7 @@ make menuconfig
 
 
 ### default-settings
-https://github.com/coolsnowwolf/lede/tree/master/package/lean/default-settings 
+https://github.com/coolsnowwolf/lede/tree/master/package/lean/default-settings  
 
 
 ### r8125
@@ -45,11 +45,11 @@ https://github.com/jerrykuku/luci-app-argon-config
 
 
 ### 在线用户
-https://github.com/selfcan/luci-app-onliner
+https://github.com/selfcan/luci-app-onliner  
 
 
 ### 关机
-https://github.com/esirplayground/luci-app-poweroff
+https://github.com/esirplayground/luci-app-poweroff  
 
 
 ### 自动格式化分区、扩容、自动挂载
@@ -57,11 +57,11 @@ https://github.com/sirpdboy/luci-app-partexp
 
 
 ### bypass
-https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass
+https://github.com/kiddin9/openwrt-packages/tree/master/luci-app-bypass  
 
 
 ### openwrt-passwall 依赖
-https://github.com/xiaorouji/openwrt-passwall  
+https://github.com/xiaorouji/openwrt-passwall-packages  
 
 
 ### Passwall
@@ -73,7 +73,7 @@ https://github.com/xiaorouji/openwrt-passwall2/tree/main/luci-app-passwall2
 
 
 ### HelloWorld 依赖
-https://github.com/fw876/helloworld 
+https://github.com/fw876/helloworld  
 
 
 ### HelloWorld
@@ -113,11 +113,11 @@ https://github.com/linkease/nas-packages-luci/tree/main/luci/luci-app-quickstart
 
 
 ### lucky
-https://github.com/gdy666/luci-app-lucky
+https://github.com/gdy666/luci-app-lucky  
 
 
 ### DDNS-GO
-https://github.com/sirpdboy/luci-app-ddns-go
+https://github.com/sirpdboy/luci-app-ddns-go  
 
 ### 实时监控
 https://github.com/sirpdboy/luci-app-netdata  

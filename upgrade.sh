@@ -104,7 +104,7 @@ git_co luci-app-bypass https://github.com/kiddin9/openwrt-packages
 #sed -i 's/luci-lib-ipkg/luci-base/g' openwrt-bypass/luci-app-bypass/Makefile
 
 # openwrt-passwall 依赖
-git_clone https://github.com/xiaorouji/openwrt-passwall
+git_clone https://github.com/xiaorouji/openwrt-passwall-packages
 
 # Passwall  # 依赖 openwrt-passwall
 git_co luci-app-passwall https://github.com/xiaorouji/openwrt-passwall
