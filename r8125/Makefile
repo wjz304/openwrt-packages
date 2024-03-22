@@ -7,12 +7,12 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=r8125
-PKG_VERSION:=9.011.00-1
+PKG_VERSION:=9.012.04-1
 PKG_RELEASE:=$(AUTORELEASE)
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/awesometic/realtek-r8125-dkms/tar.gz/$(PKG_VERSION)?
-PKG_HASH:=750a05c05f318fc5e1e05e6b2d1f61a76fffa3133eae1bf9ce5ff6d03ae29cb7
+PKG_HASH:=470f02f1f3e9a12a0443128f5efd5e254e5e8e94487a5ab949724100fdca6ab4
 PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/realtek-$(PKG_NAME)-dkms-$(PKG_VERSION)
 
 PKG_LICENSE:=GPL-2.0-only
