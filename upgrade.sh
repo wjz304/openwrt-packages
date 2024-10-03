@@ -78,6 +78,9 @@ function svn_co() {
 # r8125
 git_co r8125 https://github.com/wjz304/openwrt-packages 
 
+# r8152
+git_co r8152 https://github.com/wjz304/openwrt-packages
+
 # Pink 主题
 git_clone https://github.com/virualv/luci-theme-pink
 
