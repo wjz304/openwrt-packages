@@ -28,10 +28,6 @@ make menuconfig
 https://github.com/coolsnowwolf/lede/tree/master/package/lean/default-settings  
 
 
-### r8125
-this repo  
-
-
 ### Argon 主题
 https://github.com/jerrykuku/luci-theme-argon/tree/18.06  
 
