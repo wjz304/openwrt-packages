@@ -73,7 +73,7 @@ function svn_co() {
 }
 
 # default-settings
-[ "${BRANCH}" == "openwrt" ] && git_co default-settings https://github.com/wjz304/openwrt-packages
+[ "${BRANCH}" == "openwrt" ] && git_co package/lean/default-settings https://github.com/coolsnowwolf/lede
 
 # Pink 主题
 git_clone https://github.com/virualv/luci-theme-pink
