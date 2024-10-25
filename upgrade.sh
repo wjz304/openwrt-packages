@@ -79,11 +79,11 @@ function svn_co() {
 git_clone https://github.com/virualv/luci-theme-pink
 
 # Argon 主题
-git_clone https://github.com/jerrykuku/luci-theme-argon $([ "${BRANCH}" == "lede" ] && echo "18.06")
+git_clone https://github.com/jerrykuku/luci-theme-argon
 
 # Argon 主题配置插件
-git_clone https://github.com/jerrykuku/luci-app-argon-config $([ "${BRANCH}" == "lede" ] && echo "18.06")
-sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
+git_clone https://github.com/jerrykuku/luci-app-argon-config
+#sed -i 's/\(+luci-compat\)/\1 +luci-theme-argon/' luci-app-argon-config/Makefile
 
 # 在线用户
 git_clone https://github.com/selfcan/luci-app-onliner
