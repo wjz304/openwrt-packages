@@ -2,21 +2,28 @@
 # this script MUST supports executting without luci-app-store installed,
 # so we can use this script to install luci-app-store itself
 
+action=${1}
+shift
+if [ "${action:0:9}" = "AUTOCONF=" ]; then
+    export "ISTORE_${action}"
+    exec "$0" "$@"
+fi
+
 IS_ROOT=/tmp/is-root
 DL_DIR=${IS_ROOT}/tmp/dl
 LISTS_DIR_O=/tmp/opkg-lists
 LISTS_DIR=${IS_ROOT}${LISTS_DIR_O}
 OPKG_CONF_DIR=${IS_ROOT}/etc/opkg
+OPKG_CONF_DIR_M=${IS_ROOT}/etc/opkg_m
 FEEDS_SERVER=https://istore.linkease.com/repo
+FEEDS_SERVER_MIRRORS="https://repo.istoreos.com/repo"
+DISABLE_MIRROR=false
 ARCH=`sed -n -e 's/^Architecture: *\([^ ]\+\) *$/\1/p' /rom/usr/lib/opkg/info/libc.control /usr/lib/opkg/info/libc.control 2>/dev/null | head -1`
 
 # for istore self upgrade
 ISTORE_PKG=luci-app-store
 ISTORE_DEP_PKGS="luci-lib-taskd luci-lib-xterm taskd"
 ISTORE_INDEX=https://istore.linkease.com/repo/all/store/Packages.gz
-
-action=${1}
-shift
 
 is_init() {
     mkdir -p ${DL_DIR} ${LISTS_DIR} ${IS_ROOT}/etc ${IS_ROOT}/var
@@ -39,9 +46,32 @@ opkg_wrap() {
     OPKG_CONF_DIR=${OPKG_CONF_DIR} opkg -f ${IS_ROOT}/etc/opkg.conf "$@"
 }
 
-fcurl() {
-    curl --fail --show-error "$@"
+opkg_wrap_mirrors() {
+    local server
+    local file
+    if ! $DISABLE_MIRROR; then
+        for server in $FEEDS_SERVER_MIRRORS ; do
+            rm -rf "${OPKG_CONF_DIR_M}" 2>/dev/null
+            mkdir -p "${OPKG_CONF_DIR_M}" 2>/dev/null
+            ls "${OPKG_CONF_DIR}/" | while read; do
+                file="$REPLY"
+                if [ -f "${OPKG_CONF_DIR}/$file" -a "${file: -5}" = ".conf" ]; then
+                    sed "s#$FEEDS_SERVER/#$server/#g" "${OPKG_CONF_DIR}/$file" >"${OPKG_CONF_DIR_M}/$file"
+                    touch -r "${OPKG_CONF_DIR}/$file" "${OPKG_CONF_DIR_M}/$file" 2>/dev/null
+                else
+                    cp -a "${OPKG_CONF_DIR}/$file" "${OPKG_CONF_DIR_M}/"
+                fi
+            done
+            echo "Try mirror server $server"
+            OPKG_CONF_DIR=${OPKG_CONF_DIR_M} opkg -f ${IS_ROOT}/etc/opkg.conf "$@" && return 0
+        done
+        DISABLE_MIRROR=true
+    fi
+    echo "Try origin server $FEEDS_SERVER"
+    OPKG_CONF_DIR=${OPKG_CONF_DIR} opkg -f ${IS_ROOT}/etc/opkg.conf "$@"
 }
+
+alias fcurl='curl -L --fail --show-error'
 
 check_space() {
     local free="$((`stat -c '%a * %S'  -f /` >> 20 ))"
@@ -58,11 +88,13 @@ update() {
         return 1
     fi
 
-    fcurl -o ${OPKG_CONF_DIR}/meta.conf "${FEEDS_SERVER}/all/meta.conf" && \
-      fcurl -o ${OPKG_CONF_DIR}/all.conf "${FEEDS_SERVER}/all/isfeeds.conf" && \
-      fcurl -o ${OPKG_CONF_DIR}/arch.conf "${FEEDS_SERVER}/${ARCH}/isfeeds.conf" || \
+    echo "Fetch feed list for ${ARCH}"
+    fcurl --no-progress-meter -o ${OPKG_CONF_DIR}/meta.conf "${FEEDS_SERVER}/all/meta.conf" && \
+      fcurl --no-progress-meter -o ${OPKG_CONF_DIR}/all.conf "${FEEDS_SERVER}/all/isfeeds.conf" && \
+      fcurl --no-progress-meter -o ${OPKG_CONF_DIR}/arch.conf "${FEEDS_SERVER}/${ARCH}/isfeeds.conf" || \
       return 1
 
+    echo "Update feeds index"
     opkg -f ${IS_ROOT}/etc/opkg_o.conf --offline-root ${IS_ROOT} update
 
     return 0
@@ -138,10 +170,10 @@ step_upgrade() {
         fi
     done
     if [ -n "$pkgs" ]; then
-        opkg_wrap upgrade $pkgs || return 1
+        opkg_wrap_mirrors upgrade $pkgs || return 1
     fi
     if [ -n "$metapkg" ]; then
-        opkg_wrap upgrade $metapkg || return 1
+        opkg_wrap_mirrors upgrade $metapkg || return 1
     fi
     return 0
 }
@@ -159,6 +191,44 @@ new_upgrade() {
 
 remove() {
     opkg_wrap --autoremove --force-removal-of-dependent-packages remove "$@"
+}
+
+autoconf_to_env() {
+    local autoconf path enable
+    eval "local autoconf=$ISTORE_AUTOCONF"
+    export -n ISTORE_AUTOCONF
+    export -n ISTORE_DONT_START
+    export -n ISTORE_CONF_DIR
+    export -n ISTORE_CACHE_DIR
+    export -n ISTORE_PUBLIC_DIR
+    export -n ISTORE_DL_DIR
+
+    ISTORE_AUTOCONF=$autoconf
+
+    if [ -n "$path" ]; then
+        export ISTORE_CONF_DIR="$path/Configs"
+        export ISTORE_CACHE_DIR="$path/Caches"
+        export ISTORE_PUBLIC_DIR="$path/Public"
+        export ISTORE_DL_DIR="$ISTORE_PUBLIC_DIR/Downloads"
+    fi
+    [ "$enable" = 0 ] && export ISTORE_DONT_START="1"
+}
+
+try_autoconf() {
+    [ -n "$ISTORE_AUTOCONF" ] || return 0
+    autoconf_to_env
+    [ -n "$ISTORE_AUTOCONF" ] || return 1
+    echo "Auto configure $ISTORE_AUTOCONF"
+    /usr/libexec/istorea/${ISTORE_AUTOCONF}.sh
+}
+
+try_upgrade_depends() {
+    local pkg="$1"
+    if [[ $pkg == app-meta-* ]]; then
+        local deps=$(grep '^Depends: ' /usr/lib/opkg/info/$pkg.control | busybox sed -e 's/^Depends: //' -e 's/,/\n/g' -e 's/ //g' | grep -vFw libc | xargs echo)
+        [ -z "$deps" ] || opkg_wrap_mirrors install $deps
+    fi
+    return 0
 }
 
 usage() {
@@ -184,7 +254,10 @@ case $action in
     ;;
     "install")
         check_space
-        wrapped_in_update opkg_wrap install "$@"
+        wrapped_in_update opkg_wrap_mirrors install "$@" && try_upgrade_depends "$1" && try_autoconf
+    ;;
+    "autoconf")
+        try_autoconf
     ;;
     "upgrade")
         new_upgrade "$@"
