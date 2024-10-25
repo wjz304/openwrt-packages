@@ -8,16 +8,16 @@ include $(TOPDIR)/rules.mk
 LUCI_TITLE:=LuCI based ipk store
 LUCI_DESCRIPTION:=luci-app-store is a ipk store developed by LinkEase team
 LUCI_DEPENDS:=+curl +opkg +luci-base +tar +coreutils +coreutils-stat +libuci-lua +mount-utils +luci-lib-taskd
-LUCI_EXTRA_DEPENDS:=luci-lib-taskd (>=1.0.17)
+LUCI_EXTRA_DEPENDS:=luci-lib-taskd (>=1.0.19)
 LUCI_PKGARCH:=all
 
-PKG_VERSION:=0.1.13-2
+PKG_VERSION:=0.1.25-0
 # PKG_RELEASE MUST be empty for luci.mk
 PKG_RELEASE:=
 
-ISTORE_UI_VERSION:=0.1.12
-ISTORE_UI_RELEASE:=5
-PKG_HASH:=23279d9fa532bbe6a66c4523cfee617d098a6e9a797e4c7e5c07c52b04434047
+ISTORE_UI_VERSION:=0.1.16
+ISTORE_UI_RELEASE:=1
+PKG_HASH:=993c6c1fd59bf48f9583be4c91898b355a5fe79dc7274bd3d795a8828d59ec1d
 
 PKG_SOURCE_URL_FILE:=v$(ISTORE_UI_VERSION)-$(ISTORE_UI_RELEASE).tar.gz
 PKG_SOURCE:=istore-ui-$(PKG_SOURCE_URL_FILE)
@@ -30,6 +30,7 @@ TARGET_CONFIGURE_OPTS+= SED="$(SED)"
 
 define Package/luci-app-store/conffiles
 /etc/.app_store.id
+/etc/config/istore
 endef
 
 include $(TOPDIR)/feeds/luci/luci.mk
