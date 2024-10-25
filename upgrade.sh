@@ -117,8 +117,7 @@ git_clone https://github.com/jerrykuku/lua-maxminddb
 git_clone https://github.com/jerrykuku/luci-app-vssr
 
 # OpenClash
-git_clone https://github.com/vernesong/OpenClash
-rm -rf luci-app-openclash && mv -f OpenClash/luci-app-openclash . && rm -rf OpenClash
+git_co luci-app-openclash https://github.com/vernesong/OpenClash
 
 # Clash
 git_clone https://github.com/frainzy1477/luci-app-clash
@@ -136,8 +135,8 @@ git_clone https://github.com/rufengsuixing/luci-app-adguardhome
 
 # 应用商店
 git_clone https://github.com/linkease/istore-ui
-git_clone https://github.com/linkease/istore && mv -n istore/luci/* ./
-rm -rf istore
+git_clone https://github.com/linkease/istore
+rm -rf $(ls istore/luci/) && cp -rf istore/luci/* . && rm -rf istore
 sed -i 's/luci-lib-ipkg/luci-base/g' luci-app-store/Makefile
 
 # 网络向导
@@ -155,10 +154,6 @@ sed -i 's/#LUCI_DEPENDS:=+lucky/LUCI_DEPENDS:=+lucky/g' luci-app-lucky/luci-app-
 
 # DDNS-GO
 git_clone https://github.com/sirpdboy/luci-app-ddns-go
-# 日志启动好像不是+8区的时间格式 >> 原因找到了，因为读取的是主板时间
-# 默认检测时间是300秒 源码路径 luci-app-ddns-go/ddnsgo/file/ddnsgo.init line=46
-#                    系统路径 etc/init.d/ddnsgo
-# >> 300秒为本地校验时长，5分钟检测一次共计5次=25分钟左右会和域名商比对
 
 # 实时监控
 git_clone https://github.com/sirpdboy/luci-app-netdata
