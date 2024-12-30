@@ -1,19 +1,59 @@
-From 32f944b9a06fb2be4cd50da2434f2fd4b4decede Mon Sep 17 00:00:00 2001
-From: sbwml <984419930@qq.com>
-Date: Thu, 1 Feb 2024 21:21:56 +0800
+From d4f4d9761cbd41c3ab6de79383ff39b9f97bf452 Mon Sep 17 00:00:00 2001
+From: Syrone Wong <wong.syrone@gmail.com>
+Date: Sat, 18 Nov 2017 20:06:50 +0800
 Subject: [PATCH] Upgrade PCRE to PCRE2
 
-Signed-off-by: sbwml <984419930@qq.com>
+- Use 8bit variant by default
+
+This comes from a PR closed and never reopen as at times PCRE2 was too
+new(???.)
+
+Ref: https://github.com/shadowsocks/shadowsocks-libev/pull/1792
+Signed-off-by: Syrone Wong <wong.syrone@gmail.com>
+[ squash the first 2 patch from PR, drop the last one ]
+Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
 ---
+ .travis.yml  |   9 ++-
  configure.ac |   8 +--
  m4/pcre.m4   | 152 ------------------------------------------
  m4/pcre2.m4  | 181 +++++++++++++++++++++++++++++++++++++++++++++++++++
- src/rule.c   |  47 ++++++++++---
- src/rule.h   |  22 +++++--
- 5 files changed, 238 insertions(+), 172 deletions(-)
+ src/rule.c   |  53 ++++++++++++---
+ src/rule.h   |  23 +++++--
+ 6 files changed, 253 insertions(+), 173 deletions(-)
  delete mode 100644 m4/pcre.m4
  create mode 100644 m4/pcre2.m4
 
+# diff --git a/.travis.yml b/.travis.yml
+# index ee3424c..e7da08c 100644
+# --- a/.travis.yml
+# +++ b/.travis.yml
+# @@ -11,11 +11,12 @@ env:
+#      global:
+#          - LIBSODIUM_VER=1.0.12
+#          - MBEDTLS_VER=2.4.0
+# +        - PCRE2_VER=10.30
+#  before_install:
+#      - |
+#        if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+#            # All dependencies for macOS build. Some packages has been installed by travis so use reinstall.
+# -          brew reinstall autoconf automake xmlto c-ares libev mbedtls libsodium asciidoc >> /dev/null 2>&1;
+# +          brew reinstall autoconf automake xmlto pcre2 c-ares libev mbedtls libsodium asciidoc >> /dev/null 2>&1;
+#        else
+#            wget  https://github.com/jedisct1/libsodium/releases/download/$LIBSODIUM_VER/libsodium-$LIBSODIUM_VER.tar.gz;
+#            tar xvf libsodium-$LIBSODIUM_VER.tar.gz;
+# @@ -29,6 +30,12 @@ before_install:
+#            make SHARED=1;
+#            sudo make install;
+#            popd;
+# +          wget https://ftp.pcre.org/pub/pcre/pcre2-$PCRE2_VER.tar.gz;
+# +          tar xvf pcre2-$PCRE2_VER.tar.gz;
+# +          pushd pcre2-$PCRE2_VER;
+# +          ./configure --prefix=/usr --enable-pcre2-16 --enable-pcre2-32 && make;
+# +          sudo make install;
+# +          popd;
+#            # Load cached docker images
+#            if [[ -d $HOME/docker ]]; then
+#                ls $HOME/docker/*.tar.gz | xargs -I {file} sh -c "zcat {file} | docker load";
 --- a/configure.ac
 +++ b/configure.ac
 @@ -20,10 +20,10 @@ AC_DISABLE_STATIC
@@ -372,7 +412,24 @@ Signed-off-by: sbwml <984419930@qq.com>
 +])
 --- a/src/rule.c
 +++ b/src/rule.c
-@@ -82,14 +82,28 @@ int
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright (c) 2011 and 2012, Dustin Lundquist <dustin@null-ptr.net>
+  * Copyright (c) 2011 Manuel Kasper <mk@neon1.net>
++ * Copyright (c) 2017 Syrone Wong <wong.syrone@gmail.com>
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -74,18 +75,37 @@ add_rule(struct cork_dllist *rules, rule
+     cork_dllist_add(rules, &rule->entries);
+ }
+ 
++/*
++ * XXX: As pattern and subject are char arguments, they can be straightforwardly
++ *      cast to PCRE2_SPTR as we are working in 8-bit code units.
++ */
++
+ int
  init_rule(rule_t *rule)
  {
      if (rule->pattern_re == NULL) {
@@ -407,7 +464,7 @@ Signed-off-by: sbwml <984419930@qq.com>
              return 0;
          }
      }
-@@ -109,8 +123,15 @@ lookup_rule(const struct cork_dllist *ru
+@@ -105,8 +125,15 @@ lookup_rule(const struct cork_dllist *ru
  
      cork_dllist_foreach_void(rules, curr, next) {
          rule_t *rule = cork_container_of(curr, rule_t, entries);
@@ -425,7 +482,7 @@ Signed-off-by: sbwml <984419930@qq.com>
              return rule;
      }
  
-@@ -131,7 +152,13 @@ free_rule(rule_t *rule)
+@@ -127,7 +154,13 @@ free_rule(rule_t *rule)
          return;
  
      ss_free(rule->pattern);
@@ -443,7 +500,15 @@ Signed-off-by: sbwml <984419930@qq.com>
  }
 --- a/src/rule.h
 +++ b/src/rule.h
-@@ -33,17 +33,27 @@
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright (c) 2011 and 2012, Dustin Lundquist <dustin@null-ptr.net>
+  * Copyright (c) 2011 Manuel Kasper <mk@neon1.net>
++ * Copyright (c) 2017 Syrone Wong <wong.syrone@gmail.com>
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -33,17 +34,27 @@
  
  #include <libcork/ds.h>
  
