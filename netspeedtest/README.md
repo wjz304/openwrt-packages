@@ -87,7 +87,7 @@ luci-app-netspeedtest 网络速度诊断测试（包括：内网网页版测速�
  
     # 下载源码
     
-    rm -rf  ./feedspackages/net/speedtest-cli   #删除原来老版本
+    rm -rf  ./feeds/packages/net/speedtest-cli   #删除原来老版本
     git clone https://github.com/sirpdboy/luci-app-netspeedtest package/netspeedtest
     make menuconfig
 	
