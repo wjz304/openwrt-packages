@@ -1,46 +1,72 @@
+# Translation file for partexp.js
+# Copyright (C) 2022-2025 Sirpdboy <herboy2008@gmail.com>
+# Licensed to the public under the Apache License 2.0
+#
 msgid ""
 msgstr ""
-"Copyright (C) 2022-2025 sirpdboy  herboy2008@gmail.com  https://github.com/sirpdboy/luci-app-partexp"
-"This is free software, licensed under the GNU General Public License v3."
+"Project-Id-Version: partexp\n"
+"Report-Msgid-Bugs-To: \n"
+"Last-Translator: \n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_Hans\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Generated from partexp.js\n"
 
-msgid "Partition Expansion"
-msgstr "分区扩容"
+#: JavaScript UI strings
 
 msgid "One click partition expansion mounting tool"
 msgstr "一键分区扩容挂载工具"
 
-msgid "Automatically format and mount the target device partition. If there are multiple partitions, it is recommended to manually delete all partitions before using this tool.<br/>For specific usage, see:"
-msgstr "自动对目标设备分区格式化挂载，如果有多分区建议手动删除所有分区再使用本工具.<br/>使用说明见:"
+msgid "Partition Expansion"
+msgstr "分区扩容"
 
-msgid "Waiting,(executing)..."
-msgstr "稍等，努力执行中"
+msgid "Automatically format and mount the target device partition. If there are multiple partitions, it is recommended to manually delete all partitions before using this tool."
+msgstr "自动格式化并挂载目标设备分区。如果有多个分区，建议在使用此工具前手动删除所有分区。"
 
-msgid "Expand application space overlay (/overlay)"
-msgstr "用于overlay软件空间 (/overlay)"
+msgid "For specific usage, see:"
+msgstr "具体用法请参见："
+
+msgid "Select function"
+msgstr "选择功能"
 
 msgid "Used to extend to the root directory of EXT4 firmware(Ext4 /)"
-msgstr "用于扩展为EXT4固件根目录(Ext4 /)"
+msgstr "用于扩展到EXT4固件的根目录(Ext4 /)"
+
+msgid "Expand application space overlay (/overlay)"
+msgstr "扩展应用空间overlay (/overlay)"
 
 msgid "Used as Docker data disk (/opt)"
 msgstr "用作Docker数据盘 (/opt)"
 
 msgid "Normal mount and use by device name(/mnt/x1)"
-msgstr "按设备名普通挂载使用(/mnt/x1)"
+msgstr "普通挂载并按设备名称使用(/mnt/x1)"
 
-msgid "Soft chain partition expansion(/overlay)"
-msgstr "分区软链扩容(/overlay)"
+msgid "Select the function to be performed"
+msgstr "选择要执行的功能"
 
 msgid "Destination hard disk"
 msgstr "目标硬盘"
 
+msgid "Loading devices..."
+msgstr "正在加载设备..."
+
+msgid "Select the hard disk device to operate"
+msgstr "选择要操作的硬盘设备"
+
 msgid "Keep configuration"
 msgstr "保留配置"
+
+msgid "Tick means to retain the settings"
+msgstr "勾选表示保留设置"
 
 msgid "Format system type"
 msgstr "格式化系统类型"
 
 msgid "No formatting required"
-msgstr "不需要格式化"
+msgstr "无需格式化"
 
 msgid "Linux system partition(EXT4)"
 msgstr "Linux系统分区(EXT4)"
@@ -51,46 +77,126 @@ msgstr "大容量存储设备(Btrfs)"
 msgid "Windows system partition(NTFS)"
 msgstr "Windows系统分区(NTFS)"
 
-msgid "Select the hard disk device to operate"
-msgstr "选择需要操作的硬盘设备"
-
-msgid "Select function"
-msgstr "选择功能"
-
-msgid "Select the function to be performed"
-msgstr "选择要执行的功能"
+msgid "Perform operation"
+msgstr "执行操作"
 
 msgid "Click to execute"
 msgstr "点击执行"
 
-msgid "Perform operation"
-msgstr "执行操作"
+msgid "Starting operation..."
+msgstr "正在启动操作..."
 
-msgid "To make the operation effective, the device will restart. Are you sure to execute?"
-msgstr "警告:操作一旦确定无法取消,设备将会重启,是否确定执行？"
+msgid "Operation Log"
+msgstr "操作日志"
 
-msgid "Operation in progress, please wait..."
-msgstr "操作执行中，请稍候..."
+msgid "Are you sure you want to execute partition expansion?"
+msgstr "确定要执行分区扩容吗？"
 
-msgid "After operation, restart the machine, please wait..."
-msgstr "操作完毕，机器重启，请稍候..."
+msgid "Function:"
+msgstr "功能："
 
-msgid "Please delete the partition or share and try again"
-msgstr "错误，请检查是否有足够空间或是共享使用中。"
+msgid "Disk:"
+msgstr "磁盘："
 
-msgid "Restart the device to take effect. Confirm whether to continue?"
-msgstr "重启设备操作才生效，确定是否继续执行？"
+msgid "Keep config:"
+msgstr "保留配置："
 
-msgid "Operation execution complete"
-msgstr "操作执行完毕"
+msgid "Format type:"
+msgstr "格式化类型："
 
-msgid "Ticking indicates formatting"
-msgstr "打勾选择表示格式化"
+msgid "This operation may take several minutes."
+msgstr "此操作可能需要几分钟时间。"
 
-msgid "Tick means to retain the settings"
-msgstr "打勾选择表示保留设置"
+msgid "Executing..."
+msgstr "正在执行..."
 
-msgid "reverse"
-msgstr "逆序"
+msgid "Operation started successfully"
+msgstr "操作启动成功"
 
+msgid "Operation failed"
+msgstr "操作失败"
 
+msgid "Failed to start operation:"
+msgstr "启动操作失败："
+
+msgid "Unknown error"
+msgstr "未知错误"
+
+msgid "Operation in progress..."
+msgstr "操作正在进行中..."
+
+msgid "Operation in progress..."
+msgstr "操作正在进行中..."
+
+msgid "Operation in progress..."
+msgstr "操作正在进行中..."
+
+msgid "Extend to root directory"
+msgstr "扩展到根目录"
+
+msgid "Expand overlay"
+msgstr "扩展overlay"
+
+msgid "Docker data disk"
+msgstr "Docker数据盘"
+
+msgid "Normal mount"
+msgstr "普通挂载"
+
+msgid "No formatting"
+msgstr "不格式化"
+
+msgid "Operation completed"
+msgstr "操作完成"
+
+msgid "Getting device information"
+msgstr "正在获取设备信息"
+
+msgid "Checking partition format"
+msgstr "正在检查分区格式"
+
+msgid "Checking target device"
+msgstr "正在检查目标设备"
+
+msgid "Locating target partition"
+msgstr "正在定位目标分区"
+
+msgid "Checking free space"
+msgstr "正在检查可用空间"
+
+msgid "Starting operation"
+msgstr "正在开始操作"
+
+msgid "Initializing..."
+msgstr "正在初始化..."
+
+msgid "Starting"
+msgstr "开始"
+
+#: Device status messages
+msgid "Loading device list..."
+msgstr "正在加载设备列表..."
+
+msgid "No devices found"
+msgstr "未找到设备"
+
+msgid "Failed to load devices"
+msgstr "加载设备失败"
+
+msgid "Please select a target disk"
+msgstr "请选择目标磁盘"
+
+msgid "Settings saved"
+msgstr "设置已保存"
+
+msgid "Failed to save settings"
+msgstr "保存设置失败"
+
+msgid "Loading saved configuration..."
+msgstr "正在加载保存的配置..."
+
+msgid "Configuration loaded"
+msgstr "配置已加载"
+
+msgid "Failed to load configuration"
+msgstr "加载配置失败"
