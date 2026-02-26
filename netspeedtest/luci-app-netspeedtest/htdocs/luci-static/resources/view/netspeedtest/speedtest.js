@@ -1,4 +1,5 @@
-/*   Copyright (C) 2021-2026 sirpdboy herboy2008@gmail.com https://github.com/sirpdboy/luci-app-netspeedtest */
+/* Copyright (c) 2023-2025 muink
+Copyright (C) 2026 sirpdboy */
 'use strict';
 'require view';
 'require poll';

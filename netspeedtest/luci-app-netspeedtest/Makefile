@@ -9,8 +9,8 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-netspeedtest
 
-PKG_VERSION:=5.1.1
-PKG_RELEASE:=20260121
+PKG_VERSION:=5.1.2
+PKG_RELEASE:=20260226
 
 LUCI_TITLE:=LuCI Support for netspeedtest
 LUCI_DEPENDS:=+speedtest-cli +homebox +netspeedtest $(if $(find_package iperf3-ssl),+iperf3-ssl,+iperf3)

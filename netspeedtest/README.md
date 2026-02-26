@@ -66,7 +66,7 @@ The original version from abroad requires manually entering CMD command mode and
 - luci-app-netspeedtest：https://github.com/sirpdboy/luci-app-netspeedtest
 - homebox：https://github.com/hay-kot/homebox
 - speedtest-cli: https://github.com/sbwml/openwrt_pkgs
-
+- speedtest-js: https://github.com/muink/luci-app-netspeedtest
 
 ![screenshots](https://raw.githubusercontent.com/sirpdboy/openwrt/master/doc/说明2.jpg)
 
