@@ -110,7 +110,7 @@ return view.extend({
 // 构建UI
 const statusSection = E('div', { 'class': 'cbi-section' }, [
     E('div', { 'style': 'margin: 15px' }, [
-        E('h3', {}, _('Lan Speedtest Iperf3')),
+        E('h3', {}, _('Throughput speedtest Iperf3')),
         E('div', { 'class': 'cbi-map-descr' }, [statusIcon, statusText]),
         E('div', {'class': 'cbi-value', 'style': 'margin-top: 20px'}, [
             E('div', {'class': 'cbi-value-title'}, _('Iperf3 service control')),

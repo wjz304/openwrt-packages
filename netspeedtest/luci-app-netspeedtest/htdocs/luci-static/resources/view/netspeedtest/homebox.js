@@ -118,7 +118,7 @@ return view.extend({
         }));
 
         statusSection.appendChild(E('div', { 'style': 'margin: 15px' }, [
-            E('h3', {}, _('Lan Speedtest Homebox')),
+            E('h3', {}, _('Throughput speedtest Homebox')),
             E('div', { 'class': 'cbi-map-descr' }, [statusIcon, statusText]),
             E('div', {'class': 'cbi-value', 'style': 'margin-top: 20px'}, [
                 E('div', {'class': 'cbi-value-title'}, _('Homebox service control')),
