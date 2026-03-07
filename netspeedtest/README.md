@@ -1,5 +1,18 @@
 ![hello](https://views.whatilearened.today/views/github/sirpdboy/deplives.svg) [![](https://img.shields.io/badge/TG群-点击加入-FFFFFF.svg)](https://t.me/joinchat/AAAAAEpRF88NfOK5vBXGBQ)
 
+- 因 luci-app-netspeedtest 仓库近期更新时，在 JS 版本测速插件中误用了部分文件，导致被指侵权，目前原仓库暂时无法访问。
+- 应好伙伴们的要求，现已开放最新的临时测速源码地址：👉 https://github.com/sirpdboy/netspeedtest
+- 本插件最早由我于 2019 年开发并发布，是【OPENWRT 平台上最早】系统性研究和整合网络测速功能的人，并一直持续更新维护至今。
+- 这次事件也波及到了多个其他仓库，对此我深表遗憾。
+- 我个人的 GitHub 仓库中，有十几个开源的插件，每一个都是经过无数个日夜、一点点熬出来的，熬出了一身病，也熬出了一份执着。
+- 开发过程中，代码间相互参考、借鉴他人经验，本是开源社区的常态，也是开源精神的体现：互相学习，共同进步。
+- 关于 luci-app-netspeedtest 仓库，我们在说明中已标明部分代码的参考来源。
+- 唯一的问题是，之前在维护过程中，有一个 License 文件确实因操作失误填错了，我当时是在网页端直接操作，处理上可能不够严谨，恳请大家理解。
+- 即便是被指“抄袭”的 speedtest.js 文件，前段时间我们也已补充了参考来源，该文件也绝不是简单复制粘贴而来的。
+- 希望大家能尊重事实，理性看待问题，文明交流，少一点戾气，多一份理解。
+- 我们都是开源社区的搬运工，做点东西不容易，没必要动辄上纲上线。
+- 最近风雨飘摇，且用且珍惜吧。
+
 <h1 align="center">
   <br>Net Speed Test<br>
 </h1>
