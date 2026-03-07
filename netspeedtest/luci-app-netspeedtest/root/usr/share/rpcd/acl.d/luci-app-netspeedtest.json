@@ -1,0 +1,38 @@
+{
+  "luci-app-netspeedtest": {
+    "description": "Grant access to netspeedtest procedures",
+    "read": {
+      "file": {
+        "/usr/bin/netspeedtest.sh": [ "exec" ],
+        "/usr/bin/pgrep": [ "exec" ],
+        "/bin/ps": [ "exec" ],
+        "/usr/bin/homebox": [ "exec" ],
+        "/usr/bin/killall": [ "exec" ],
+        "/bin/sh": [ "exec" ],
+        "/bin/cat": [ "exec" ],
+        "/usr/bin/iperf3": [ "exec" ],
+        "/usr/bin/nohup": [ "exec" ],
+        "/usr/bin/speedtest": [ "exec" ],
+        "/usr/bin/ookla-speedtest": [ "exec" ],
+        "/tmp/netspeedtest_result": [ "read" ],
+        "/tmp/netspeedtest_progress": [ "read" ],
+        "/var/run/netspeedtest.pid": [ "read" ],
+        "/tmp/netspeedtest.log": [ "read" ]
+      },
+      "ubus": {
+        "luci.netspeedtest": [ "get_servers" ]
+      }
+    },
+    "write": {
+      "file": {
+        "/tmp/netspeedtest_result": [ "write" ],
+        "/tmp/netspeedtest_progress": [ "write" ],
+        "/var/run/netspeedtest.pid": [ "write" ],
+        "/tmp/netspeedtest.log": [ "write" ]
+      },
+      "ubus": {
+        "luci.netspeedtest": [ "get_servers" ]
+      }
+    }
+  }
+}
