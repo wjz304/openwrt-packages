@@ -11,7 +11,11 @@
 - 即便是被指“抄袭”的 speedtest.js 文件，前段时间我们也已补充了参考来源，该文件也绝不是简单复制粘贴而来的。
 - 希望大家能尊重事实，理性看待问题，文明交流，少一点戾气，多一份理解。
 - 我们都是开源社区的搬运工，做点东西不容易，没必要动辄上纲上线。
-- 最近风雨飘摇，且用且珍惜吧。
+- 
+- 附：恩山【网络测速】开源贴：https://www.right.com.cn/forum/thread-5970397-1-1.html
+- 
+- 【最近感觉】：风雨飘摇，且用且珍惜吧。
+
 
 <h1 align="center">
   <br>Net Speed Test<br>
@@ -100,7 +104,7 @@ The original version from abroad requires manually entering CMD command mode and
 # My other project
 
 - Watch Dog ： https://github.com/sirpdboy/luci-app-watchdog
-- Net Speedtest ： https://github.com/sirpdboy/luci-app-netspeedtest
+- Net Speedtest ： https://github.com/sirpdboy/netspeedtest
 - Task Plan : https://github.com/sirpdboy/luci-app-taskplan
 - Power Off Device : https://github.com/sirpdboy/luci-app-poweroffdevice
 - OpentoPD Theme : https://github.com/sirpdboy/luci-theme-opentopd
