@@ -78,21 +78,11 @@ return view.extend({
                     E('small', {}, _('Refresh every %s seconds.').format(L.env.pollinterval))
                 ]),
                 E('div', { 'class': 'cbi-section-actions cbi-section-actions-right' })
-            ]),
-            E('div', { 'style': 'text-align: right; font-style: italic; margin-top: 10px;' }, [
-                E('span', {}, [
-                    _('© github '),
-                    E('a', {
-                        'href': 'https://github.com/sirpdboy',
-                        'target': '_blank',
-                        'style': 'text-decoration: none;'
-                    }, 'by sirpdboy')
-                ])
             ])
         ]);
-    }
+    },
 
-    // handleSaveApply: null,
-    // handleSave: null,
-    // handleReset: null
+    handleSaveApply: null,
+    handleSave: null,
+    handleReset: null
 });

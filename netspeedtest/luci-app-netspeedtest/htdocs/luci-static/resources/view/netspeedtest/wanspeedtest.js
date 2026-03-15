@@ -1,5 +1,5 @@
+// Copyright (C) 2023-2025 muink
 // Copyright (C) 2019-2026 sirpdboy
-// Fixed version - better Ookla result parsing
 
 'use strict';
 'require view';
@@ -25,7 +25,6 @@ return view.extend({
         ]);
     },
 
-    // 检测可用版本
     detectVersions: function(res) {
         var hasOokla = !!(res[0] && res[0].path);
         var hasPython = !!(res[1] && res[1].path);
@@ -37,17 +36,14 @@ return view.extend({
         };
     },
 
-    // 检查是否真正在测试中（文件新鲜且内容为Testing）
     isTesting: function(resultContent, resultMtime) {
         if (!resultContent || resultContent.length === 0) return false;
         if (resultContent[0].trim() !== 'Testing') return false;
         
-        // 检查文件是否在超时时间内
         var fileAge = Date.now() - resultMtime;
         return fileAge < Timeout;
     },
 
-    // 解析结果内容
     parseResult: function(content) {
         if (!content || content.length === 0) {
             return { type: 'none', data: null };
@@ -55,17 +51,13 @@ return view.extend({
         
         var firstLine = content[0].trim();
         
-        // 检查是否是Testing状态
         if (firstLine === 'Testing') {
             return { type: 'testing', data: null };
         }
-        
-        // 检查是否是失败状态
         if (firstLine === 'Test failed') {
             return { type: 'failed', data: null };
         }
         
-        // 检查是否包含Result URL (Ookla格式)
         var resultUrl = null;
         for (var i = 0; i < content.length; i++) {
             var line = content[i];
@@ -82,18 +74,13 @@ return view.extend({
             return { type: 'url', data: resultUrl };
         }
         
-        // 检查是否是直接URL (Python格式)
         if (firstLine.match(/^https?:\/\//) || firstLine.match(/\.png$/)) {
             return { type: 'url', data: firstLine };
         }
         
-        // 检查是否是速度数据
         if (firstLine.match(/Download:/i) || firstLine.match(/Upload:/i)) {
             return { type: 'speed', data: content.join('\n') };
         }
-        
-        // 其他情况，可能是完整的速度测试结果
-        // 检查是否包含Download和Upload信息
         var hasDownload = false;
         var hasUpload = false;
         for (var j = 0; j < content.length; j++) {
@@ -114,18 +101,13 @@ return view.extend({
         
         var result_stat = nodes.querySelector('#speedtest_result');
         var start_btn = nodes.querySelector('.cbi-button-apply');
-
-        // 解析结果
         var result = this.parseResult(result_content);
         var is_testing = this.isTesting(result_content, result_mtime);
 
-
-        // 更新测试按钮状态
         if (start_btn) {
             start_btn.disabled = is_testing;
         }
 
-        // 更新结果状态
         if (result_stat) {
             if (is_testing) {
                 result_stat.innerHTML = "<span style='color:green;font-weight:bold;margin-left:20px'>" +
@@ -212,7 +194,6 @@ return view.extend({
                     break;
                     
                 case 'unknown':
-                    // 未知格式，直接显示
                     result_stat.innerHTML = "<div style='margin-left:20px; padding:10px; background:#f5f5f5; border-radius:4px'>" +
                         "<strong>" + _('Test Results:') + "</strong><br>" +
                         "<pre style='margin:5px 0 0 0; font-family:inherit; white-space:pre-wrap; color:#2e7d32'>" + 
@@ -221,9 +202,8 @@ return view.extend({
                     break;
                     
                 default:
-                    // 无结果
                     result_stat.innerHTML = "<span style='color:gray;margin-left:20px'>" +
-                        "<em>" + _('No test results yet. Click "Start Speed Test" to begin.') + "</em>" +
+                        "<em>" + _('No test results yet.') + "</em>" +
                         "</span>";
             }
         }
@@ -241,9 +221,8 @@ return view.extend({
         var is_testing = this.isTesting(result_content, result_mtime);
 
         var m, s, o;
-        m = new form.Map('netspeedtest', _('WAN SpeedTest'));
+        m = new form.Map('netspeedtest', _('Wan SpeedTest'));
 
-        // 结果显示区域
         s = m.section(form.TypedSection, '_result');
         s.anonymous = true;
         s.render = function(section_id) {
@@ -353,7 +332,6 @@ return view.extend({
                     ]);
                     
                 case 'unknown':
-                    // 未知格式，直接显示
                     return E('div', { id: result_id, class: 'cbi-section' }, [
                         E('div', { style: 'margin-left:20px; padding:10px; background:#f5f5f5; border-radius:4px' }, [
                             E('strong', {}, _('Test Results:')),
@@ -365,20 +343,17 @@ return view.extend({
                     ]);
                     
                 default:
-                    // 无结果
                     return E('div', { id: result_id, class: 'cbi-section' }, [
                         E('span', { style: 'color:gray;margin-left:20px' }, [
-                            E('em', {}, _('No test results yet. Click "Start Speed Test" to begin.'))
+                            E('em', {}, _('No test results yet.'))
                         ])
                     ]);
             }
         };
 
-        // 配置部分
         s = m.section(form.NamedSection, 'config', 'netspeedtest');
         s.anonymous = true;
 
-        // 版本选择
         o = s.option(form.ListValue, 'test_version', _('Select Test Version'));
         
         if (has_ookla) {
@@ -404,7 +379,6 @@ return view.extend({
         o.inputtitle = _('Click to start speed test');
         o.inputstyle = 'apply';
         
-        // 只有真正在测试中才禁用按钮
         if (is_testing) {
             o.readonly = true;
         }
@@ -413,17 +387,14 @@ return view.extend({
             var btn = this;
             btn.disabled = true;
             
-            // 获取选中的版本
             var versionSelect = document.getElementById('widget.cbid.netspeedtest.config.test_version');
             if (!versionSelect) {
                 versionSelect = document.querySelector('select[name="test_version"]');
             }
             var version = versionSelect ? versionSelect.value : (has_ookla ? 'ookla' : 'python');
             
-            // 先写入Testing状态
             return fs.write(ResultFile, 'Testing\n')
                 .then(function() {
-                    // 在后台执行测试脚本
                     var cmd = 'nohup ' + SpeedtestScript;
                     if (version) {
                         cmd += ' --version ' + version;
@@ -445,9 +416,7 @@ return view.extend({
 
         return m.render()
         .then(L.bind(function(m, nodes) {
-            nodes.result_mtime = result_mtime; // 保存结果文件修改时间
-            
-            // 添加轮询 - 每2秒检查一次结果
+            nodes.result_mtime = result_mtime;
             poll.add(L.bind(function() {
                 return Promise.all([
                     L.resolveDefault(fs.stat('/usr/bin/ookla-speedtest'), {}),
@@ -469,7 +438,6 @@ return view.extend({
     handleReset: null
 });
 
-// 辅助函数
 function escapeHTML(str) {
     if (!str) return '';
     return String(str)

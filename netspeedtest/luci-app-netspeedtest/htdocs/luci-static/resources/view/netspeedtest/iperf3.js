@@ -9,7 +9,7 @@
 
 var state = { 
     running: false,
-    port: null
+    port: 5201 
 };
 
 const logPath = '/tmp/netspeedtest.log';
@@ -34,10 +34,9 @@ async function checkProcess() {
     }
 }
 
-
-function controlService(action) {
+function controlService(action, port) {
     const commands = {
-        start: `/usr/bin/iperf3 -s -D -p 5201 --logfile ${logPath} 2>&1`,
+        start: `/usr/bin/iperf3 -s -D -p ${port} --logfile ${logPath} 2>&1`,
         stop: '/usr/bin/killall -q iperf3'
     };
 
@@ -50,44 +49,104 @@ function controlService(action) {
         throw err;
     });
 }
-
-
+function saveConfiguration(newPort, enabled) {
+    const uciContent = `config netspeedtest 'config'
+\toption iperf3port '${newPort}'
+\toption iperf3_enabled '${enabled ? '1' : '0'}'
+`;
+    
+    return fs.write('/etc/config/netspeedtest', uciContent)
+        .then(() => {
+            // 更新开机自启
+            if (enabled) {
+                return fs.exec('/etc/init.d/netspeedtest', ['enable']);
+            } else {
+                return fs.exec('/etc/init.d/netspeedtest', ['disable']);
+            }
+        });
+}
 return view.extend({
     handleSaveApply: null,
     handleSave: null,
     handleReset: null,
+    
     load: function() {
-	return Promise.all([
-		uci.load('netspeedtest')
-	]);
+        return Promise.all([
+            uci.load('netspeedtest')
+        ]).then(() => {
+            const port = uci.get('netspeedtest', 'config', 'iperf3port');
+            if (port) {
+                state.port = parseInt(port);
+            }
+        });
     },
 
     render: function() {
-
-        // 创建状态元素
         const statusIcon = E('span', { 'style': 'margin-right: 5px;' });
-        const btnGroup = E('div', { 'class': 'cbi-value-field', 'style': 'display: flex; gap: 10px;' });
         const statusText = E('span');
+        
+        const portInput = E('input', {
+            'type': 'number',
+            'class': 'cbi-input-text',
+            'style': 'width: 100px;',
+            'value': state.port,
+            'min': 1024,
+            'max': 65535,
+            'placeholder': '5201'
+        });
+        const enableCheckbox = E('input', {
+            'type': 'checkbox',
+            'id': 'iperf3_enable',
+            'class': 'cbi-input-checkbox',
+            'checked': state.enabled
+        });
+        const portError = E('span', {
+            'class': 'error',
+            'style': 'color: red; margin-left: 10px; display: none;'
+        }, _('Port range must be 1024-65535'));
+
+        const statusContainer = E('div', { 'class': 'cbi-map-descr' }, [
+            statusIcon, 
+            statusText
+        ]);
+        
         const toggleBtn = E('button', {
             'class': 'btn cbi-button',
             'click': ui.createHandlerFn(this, function() {
-            const action = state.running ? 'stop' : 'start';
-            toggleBtn.disabled = true; // 禁用按钮
-            
-            return controlService(action)
-                .then(() => checkProcess())
-                .then(res => {
-                    state.running = res.running;
-                    updateStatus();
-                    toggleBtn.disabled = false; // 恢复按钮
-                })
-                .catch(err => {
-                    ui.addNotification(null, E('p', _('Error: ') + err.message), 'error');
-                    toggleBtn.disabled = false; // 出错时也要恢复按钮
-                });
-
+                const action = state.running ? 'stop' : 'start';
+                toggleBtn.disabled = true;
+                
+                controlService(action, state.port)
+                    .then(() => {
+                        return new Promise(resolve => setTimeout(resolve, 500));
+                    })
+                    .then(() => checkProcess())
+                    .then(res => {
+                        state.running = res.running;
+                        updateStatus();
+                        toggleBtn.disabled = false;
+                    })
+                    .catch(err => {
+                        ui.addNotification(null, E('p', _('Error: ') + err.message), 'error');
+                        toggleBtn.disabled = false;
+                    });
             })
         });
+
+        const savePortBtn = E('button', {
+            'class': 'btn cbi-button cbi-button-apply',
+            'style': 'margin-left: 10px;',
+            'click': ui.createHandlerFn(this, function() {
+                const newPort = parseInt(portInput.value);
+                if (isNaN(newPort) || newPort < 1024 || newPort > 65535) {
+                    portError.style.display = 'inline';
+                    return;
+                }
+                portError.style.display = 'none';
+                saveConfiguration(newPort,state.enabled)
+                
+            })
+        }, _('Save'));
 
         function updateStatus() {
             statusIcon.textContent = state.running ? '✓' : '✗';
@@ -98,51 +157,54 @@ return view.extend({
             statusText.style['font-size'] = '0.92rem'; 
             toggleBtn.textContent = state.running ? _('Stop Server') : _('Start Server');
             toggleBtn.className = `btn cbi-button cbi-button-${state.running ? 'reset' : 'apply'}`;
+            
+            portInput.value = state.port;
         }
 
-        // 初始化状态
         statusIcon.textContent = '...';
         statusText.textContent = _('Checking status...');
         toggleBtn.textContent = _('Loading...');
         toggleBtn.disabled = true;
 
-
-// 构建UI
-const statusSection = E('div', { 'class': 'cbi-section' }, [
-    E('div', { 'style': 'margin: 15px' }, [
-        E('h3', {}, _('Throughput speedtest Iperf3')),
-        E('div', { 'class': 'cbi-map-descr' }, [statusIcon, statusText]),
-        E('div', {'class': 'cbi-value', 'style': 'margin-top: 20px'}, [
-            E('div', {'class': 'cbi-value-title'}, _('Iperf3 service control')),
-            E('div', {'class': 'cbi-value-field'}, toggleBtn),
-
-            E('div', {'class': 'cbi-value-title'}, _('Download iperf3 client')),
-            E('div', {'class': 'cbi-value-field'}, [ 
-                E('div', { 
-                    'class': 'cbi-value-field', 
-                    'style': 'display: flex;' 
-                }, [
-                    E('button', {
-                        'class': 'btn cbi-button cbi-button-save',
-                        'click': ui.createHandlerFn(this, () => window.open('https://iperf.fr/iperf-download.php', '_blank'))
-                    }, _('Official Website')),
-                    E('button', {
-                        'class': 'btn cbi-button cbi-button-save',
-                        'click': ui.createHandlerFn(this, () => window.open('https://github.com/sirpdboy/luci-app-netspeedtest/releases', '_blank'))
-                    }, _('GitHub'))
+        const statusSection = E('div', { 'class': 'cbi-section' }, [
+            E('div', { 'style': 'margin: 15px' }, [
+                E('h3', {}, _('Throughput speedtest Iperf3')),
+                statusContainer,
+                
+                E('div', {'class': 'cbi-value', 'style': 'margin-top: 20px'}, [
+                    E('div', {'class': 'cbi-value-title'}, _('Port Setting')),
+                    E('div', {'class': 'cbi-value-field'}, [
+                        portInput,
+                        savePortBtn,
+                        portError
+                    ])
+                ]),
+                
+                E('div', {'class': 'cbi-value'}, [
+                    E('div', {'class': 'cbi-value-title'}, _('Service Control')),
+                    E('div', {'class': 'cbi-value-field'}, toggleBtn),
+                ]),
+                
+                E('div', {'class': 'cbi-value'}, [
+                    E('div', {'class': 'cbi-value-title'}, _('Download iperf3 client')),
+                    E('div', {'class': 'cbi-value-field'}, [ 
+                        E('div', { 
+                            'class': 'cbi-value-field', 
+                            'style': 'display: flex;' 
+                        }, [
+                            E('button', {
+                                'class': 'btn cbi-button cbi-button-save',
+                                'click': ui.createHandlerFn(this, () => window.open('https://iperf.fr/iperf-download.php', '_blank'))
+                            }, _('Official Website')),
+                            E('button', {
+                                'class': 'btn cbi-button cbi-button-save',
+                                'click': ui.createHandlerFn(this, () => window.open('https://github.com/sirpdboy/netspeedtest/releases', '_blank'))
+                            }, _('GitHub'))
+                        ])
+                    ])
                 ])
             ])
-        ]),
-        E('div', { 'style': 'text-align: right; font-style: italic; margin-top: 20px;' }, [
-            _('© github '),
-            E('a', { 
-                'href': 'https://github.com/sirpdboy/luci-app-netspeedtest', 
-                'target': '_blank',
-                'style': 'text-decoration: none;'
-            }, 'by sirpdboy')
-        ])
-    ])
-]);
+        ]);
 
         // 初始化状态检查
         checkProcess().then(res => {
@@ -161,8 +223,6 @@ const statusSection = E('div', { 'class': 'cbi-section' }, [
             }, 5);
         });
 
- 
         return statusSection;
-	}
-
+    }
 });

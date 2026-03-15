@@ -70,41 +70,29 @@ msgstr "Iperf3服务端"
 msgid "Command failed"
 msgstr "命令无效"
 
-msgid "Failed to read log file"
-msgstr "读取日志失败"
-
-msgid "No log content available"
-msgstr "没有日志记录"
 
 msgid "Error: "
 msgstr "错误: "
 
-msgid "Iperf3 service control"
-msgstr "Iperf3 服务控制"
+msgid "Service Control"
+msgstr "服务控制"
 
-msgid "Listen Port"
-msgstr "监听端口"
 
-msgid "Invalid format. Use [::]:port or ip:port"
-msgstr "格式错误.如 [::]:端口 或 ip:端口"
-
-msgid "Enable Log View"
-msgstr "开启日志显示"
 
 msgid "Download iperf3 client"
 msgstr "下载iperf3客户端"
 
-msgid "Run Log"
-msgstr "运行日志"
+msgid "Refresh every %s seconds."
+msgstr "每 %s 秒刷新"
 
-msgid "Refresh Log"
-msgstr "刷新日志"
+msgid "Clear logs"
+msgstr "清除日志"
 
 msgid "Official Website"
 msgstr "官方网站"
 
-msgid "Please enable the Homebox service"
-msgstr "请将homebox服务启用"
+msgid "Please start the Homebox service"
+msgstr "请启动homebox服务"
 
 msgid "Homebox service control"
 msgstr "Homebox服务控制"
@@ -144,6 +132,18 @@ msgstr "由于浏览器安全策略，Homebox接口https不能直接嵌入。"
 
 msgid "Select speed measurement station"
 msgstr "选择测速站点"
+
+msgid "Iperf3 Port"
+msgstr "Iperf3监听端口"
+
+msgid "Port range must be 1024-65535"
+msgstr "端口范围1024-65535"
+
+msgid "Auto Start"
+msgstr "自动启动"
+
+msgid "Port Setting"
+msgstr "监听端口"
 
 msgid ""
 msgstr ""
