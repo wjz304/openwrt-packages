@@ -1,6 +1,6 @@
 #!/bin/sh
 
-chmod +x /usr/bin/netspeedtest.sh /usr/bin/speedtest /usr/libexec/rpcd/luci.netspeedtest
-
+chmod +x /etc/init.d/netspeedtest /usr/bin/netspeedtest.sh /usr/bin/speedtest /usr/libexec/rpcd/luci.netspeedtest
+/etc/init.d/rpcd restart
 rm -f /tmp/luci-indexcache
 exit 0

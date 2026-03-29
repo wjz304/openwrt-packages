@@ -145,6 +145,12 @@ msgstr "自动启动"
 msgid "Port Setting"
 msgstr "监听端口"
 
-msgid ""
-msgstr ""
+msgid "Starting..."
+msgstr "启动中"
+
+msgid "Stopping..."
+msgstr "停止中"
+
+msgid "Test failed. Please check log for details."
+msgstr "测速失败，请查看日志"
 

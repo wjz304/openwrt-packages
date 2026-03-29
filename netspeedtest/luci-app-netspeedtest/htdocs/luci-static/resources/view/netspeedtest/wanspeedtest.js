@@ -10,7 +10,7 @@
 'require ui';
 'require form';
 
-var Timeout = 300 * 1000;
+var Timeout = 300 * 1000;  
 var ResultFile = '/tmp/netspeedtest_result';
 var SpeedtestScript = '/usr/bin/netspeedtest.sh';
 
@@ -81,6 +81,7 @@ return view.extend({
         if (firstLine.match(/Download:/i) || firstLine.match(/Upload:/i)) {
             return { type: 'speed', data: content.join('\n') };
         }
+        
         var hasDownload = false;
         var hasUpload = false;
         for (var j = 0; j < content.length; j++) {
@@ -93,6 +94,22 @@ return view.extend({
         }
         
         return { type: 'unknown', data: content.join('\n') };
+    },
+
+    startSpeedTest: function(version) {
+        return fs.write(ResultFile, 'Testing\n')
+            .then(function() {
+                    var shellCmd = SpeedtestScript;
+                    if (version) {
+                        shellCmd += ' --version ' + version;
+                    }
+                    shellCmd += ' > /dev/null 2>&1 &';
+                    console.log('Starting test with sh -c:', shellCmd);
+                    return fs.exec('/bin/ash', ['-c', shellCmd])
+                        .catch(function() {
+                            return fs.exec('/bin/sh', ['-c', shellCmd]);
+                        });
+            });
     },
 
     poll_status(nodes, res) {
@@ -129,7 +146,6 @@ return view.extend({
                     if (!imageUrl.match(/\.png$/)) {
                         imageUrl = imageUrl + '.png';
                     }
-                    // 处理speedtest.net的特殊URL
                     if (imageUrl.includes('speedtest.net/result/')) {
                         imageUrl = imageUrl.replace('/result/c/', '/result/');
                     }
@@ -137,7 +153,6 @@ return view.extend({
                     result_stat.innerHTML = "<div style='max-width:500px; margin-left:20px'>" +
                         "<a href='" + result.data + "' target='_blank'>" +
                         "<img src='" + result.data + "' style='max-width:100%; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1)' " +
-                        "onerror='this.onerror=null; this.src=\"/luci-static/resources/icons/error.png\"'/>" +
                         "</a><br>" +
                         "</div>";
                     break;
@@ -393,22 +408,11 @@ return view.extend({
             }
             var version = versionSelect ? versionSelect.value : (has_ookla ? 'ookla' : 'python');
             
-            return fs.write(ResultFile, 'Testing\n')
+            
+                self.startSpeedTest(version)
                 .then(function() {
-                    var cmd = 'nohup ' + SpeedtestScript;
-                    if (version) {
-                        cmd += ' --version ' + version;
-                    }
-                    cmd += ' > /dev/null 2>&1 &';
-                    
-                    return fs.exec('/bin/sh', ['-c', cmd]);
-                })
-                .then(function() {
-                    ui.addNotification(null, E('p', _('Speed test started. Please wait...')), 'info');
                 })
                 .catch(function(e) {
-                    console.error('Failed to start test:', e);
-                    ui.addNotification(null, E('p', _('Failed to start speed test: ') + e.message), 'error');
                 });
             
             return false;

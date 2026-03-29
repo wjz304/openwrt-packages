@@ -21,7 +21,6 @@ async function checkProcess() {
             return { running: true, pid: res.stdout.trim() };
         }
         
-        // 回退检查
         const psRes = await fs.exec('/bin/ps', ['-w', '-C', 'iperf3', '-o', 'pid=']);
         const pid = psRes.stdout.trim();
         return {
@@ -57,7 +56,6 @@ function saveConfiguration(newPort, enabled) {
     
     return fs.write('/etc/config/netspeedtest', uciContent)
         .then(() => {
-            // 更新开机自启
             if (enabled) {
                 return fs.exec('/etc/init.d/netspeedtest', ['enable']);
             } else {
