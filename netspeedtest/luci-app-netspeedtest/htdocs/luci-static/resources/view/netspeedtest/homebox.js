@@ -49,19 +49,21 @@ function checkProcess(quick = false) {
             });
     }
 }
-
 function controlService(action, port) {
     if (action === 'start') {
         return fs.exec('/usr/bin/killall', ['homebox'])
             .catch(function() { return Promise.resolve(); })
             .then(function() {
-                var command = 'nohup /usr/bin/homebox serve --port ' + port + ' > ' + logPath + ' 2>&1 &';
+                var command = '/usr/bin/homebox serve --port ' + port + ' > ' + logPath + ' 2>&1 &';
                 return fs.exec('/bin/sh', ['-c', command]);
             });
     } else {
+        fs.exec('/usr/bin/killall', ['homebox']);
         return fs.exec('/etc/init.d/netspeedtest', ['stop']);
     }
 }
+
+
 
 function saveConfiguration(newPort, enabled) {
     const uciContent = `config netspeedtest 'config'
@@ -174,14 +176,12 @@ return view.extend({
                 }
                 toggleBtn.disabled = true;
                 if (state.operationType === 'stop' && !state.running) {
-                    console.log('Stop confirmed - operation complete');
                     state.operationInProgress = false;
                     state.operationType = null;
                     toggleBtn.textContent = state.running ? _('Stop Server') : _('Start Server');
                     toggleBtn.className = 'btn cbi-button cbi-button-' + (state.running ? 'reset' : 'apply');
                     toggleBtn.disabled = false;
                 } else if (state.operationType === 'start' && state.running) {
-                    console.log('Start confirmed - operation complete');
                     state.operationInProgress = false;
                     state.operationType = null;
                     toggleBtn.textContent = state.running ? _('Stop Server') : _('Start Server');
@@ -234,16 +234,13 @@ return view.extend({
                         function doCheck() {
                             checkProcess(true).then(function(isRunning) {
                                 if (action === 'stop' && !isRunning) {
-                                    console.log('Stop success after', Date.now() - startTime, 'ms');
                                     resolve({ running: false });
                                 } else if (action === 'start' && isRunning) {
-                                    console.log('Start success after', Date.now() - startTime, 'ms');
                                     checkProcess().then(resolve).catch(resolve);
                                 } else if (checkCount < maxChecks) {
                                     checkCount++;
                                     setTimeout(doCheck, 200); 
                                 } else {
-                                   console.log('Check timeout, using full check');
 
                                     checkProcess().then(resolve).catch(resolve);
                                 }
@@ -283,7 +280,6 @@ return view.extend({
                 .catch(function(err) {
                     console.error('Service control error:', err);
                     
-                    // 发生错误时重新检查
                     checkProcess().then(function(res) {
                         state.running = res.running || false;
                         if (res.port) state.port = res.port;
