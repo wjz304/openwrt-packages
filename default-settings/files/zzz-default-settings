@@ -54,7 +54,7 @@ sed -i '/DISTRIB_DESCRIPTION/d' /etc/openwrt_release
 echo "DISTRIB_DESCRIPTION='LEDE '" >> /etc/openwrt_release
 
 sed -i '/OPENWRT_RELEASE/d' /usr/lib/os-release
-echo 'OPENWRT_RELEASE="LEDE R26.02.20"' >> /usr/lib/os-release
+echo 'OPENWRT_RELEASE="LEDE R26.04.04"' >> /usr/lib/os-release
 
 sed -i '/log-facility/d' /etc/dnsmasq.conf
 echo "log-facility=/dev/null" >> /etc/dnsmasq.conf
