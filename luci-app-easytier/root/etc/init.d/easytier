@@ -658,6 +658,7 @@ start_web() {
 	api_port="$(uci -q get easytier.@easytier[0].web_api_port)"
 	html_port="$(uci -q get easytier.@easytier[0].web_html_port)"
 	weblog="$(uci -q get easytier.@easytier[0].web_weblog)"
+    weblog="${weblog:-off}"
 	api_host="$(uci -q get easytier.@easytier[0].web_api_host)"
 	geoip_db="$(uci -q get easytier.@easytier[0].web_geoip_db)"
 	fw_web="$(uci -q get easytier.@easytier[0].web_fw_web || echo 0)"
