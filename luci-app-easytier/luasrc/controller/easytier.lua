@@ -138,7 +138,7 @@ function act_status()
 	if cached_webtag and cached_webtag ~= "" then
 		e.etwebtag = cached_webtag:gsub("[\r\n]+", "")
 	else
-		local easytierwebbin = uci:get_first("easytier", "easytier", "easytierwebbin") or "/usr/bin/easytier-web"
+		local easytierwebbin = uci:get_first("easytier", "easytier", "webbin") or "/usr/bin/easytier-web"
 		e.etwebtag = safe_exec(easytierwebbin .. " -V 2>/dev/null | sed 's/^[^0-9]*//'")
 		if e.etwebtag == "" or e.etwebtag == nil then e.etwebtag = "unknown" end
 		local f = io.open("/tmp/easytierweb.tag", "w")
@@ -160,7 +160,7 @@ function get_upload_config()
 	
 	local config = {
 		easytierbin = uci:get_first("easytier", "easytier", "easytierbin") or "/usr/bin/easytier-core",
-		webbin = uci:get_first("easytier", "easytier", "easytierwebbin") or "/usr/bin/easytier-web",
+		webbin = uci:get_first("easytier", "easytier", "webbin") or "/usr/bin/easytier-web",
 		github_proxys = {},
 		fallback_version = uci:get_first("easytier", "easytier", "fallback_version") or "v2.6.0"
 	}
@@ -198,7 +198,7 @@ function save_upload_config()
 	
 	-- 保存配置
 	uci:set("easytier", "@easytier[0]", "easytierbin", data.easytierbin or "/usr/bin/easytier-core")
-	uci:set("easytier", "@easytier[0]", "easytierwebbin", data.webbin or "/usr/bin/easytier-web")
+	uci:set("easytier", "@easytier[0]", "webbin", data.webbin or "/usr/bin/easytier-web")
 	uci:set("easytier", "@easytier[0]", "fallback_version", data.fallback_version or "v2.6.0")
 	
 	-- 删除旧的代理列表
@@ -479,7 +479,7 @@ function upload_binary()
 		end
 		
 		local core_path = uci:get_first("easytier", "easytier", "easytierbin") or "/usr/bin/easytier-core"
-		local web_path = uci:get_first("easytier", "easytier", "easytierwebbin") or "/usr/bin/easytier-web"
+		local web_path = uci:get_first("easytier", "easytier", "webbin") or "/usr/bin/easytier-web"
 		
 		for _, bin in ipairs(valid_bins) do
 			local final_path
@@ -536,7 +536,7 @@ function upload_binary()
 		end
 		
 		local core_path = uci:get_first("easytier", "easytier", "easytierbin") or "/usr/bin/easytier-core"
-		local web_path = uci:get_first("easytier", "easytier", "easytierwebbin") or "/usr/bin/easytier-web"
+		local web_path = uci:get_first("easytier", "easytier", "webbin") or "/usr/bin/easytier-web"
 		
 		local final_path
 		if filename == "easytier-web-embed" then
@@ -1053,7 +1053,7 @@ function download_easytier()
 	-- 3. 从UCI获取路径并安装
 	local uci = require "luci.model.uci".cursor()
 	local easytierbin = uci:get_first("easytier", "easytier", "easytierbin") or "/usr/bin/easytier-core"
-	local easytierwebbin = uci:get_first("easytier", "easytier", "easytierwebbin") or "/usr/bin/easytier-web"
+	local easytierwebbin = uci:get_first("easytier", "easytier", "webbin") or "/usr/bin/easytier-web"
 	
 	local core_dir = easytierbin:match("^(.*/)[^/]+$") or "/usr/bin/"
 	
