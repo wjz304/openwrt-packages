@@ -1,0 +1,148 @@
+<style type="text/css">
+.ssr-schedule-inline {
+	display: flex;
+	gap: 2%;
+	align-items: flex-start;
+	flex-wrap: nowrap;
+}
+
+.ssr-schedule-item {
+	width: 30%;
+	min-width: 0;
+}
+
+.ssr-schedule-item select {
+	width: 100%;
+}
+
+.ssr-schedule-subtitle {
+	font-size: 12px;
+	color: #666;
+	margin-bottom: 4px;
+	line-height: 1.2;
+}
+
+.ssr-schedule-hidden {
+	display: none !important;
+}
+</style>
+
+<script type="text/javascript">
+//<![CDATA[
+function ssrCompactSubscribeSchedule() {
+	function shortLabel(row, fallback) {
+		if (!row) return fallback;
+		var label = row.querySelector('.cbi-value-title');
+		if (!label) return fallback;
+		var text = (label.textContent || '').trim();
+		var matched = text.match(/\(([^)]+)\)/);
+		return matched ? matched[1] : fallback;
+	}
+
+	function getRowByName(suffix) {
+		var el = document.querySelector('select[name$=".' + suffix + '"]');
+		return el ? el.closest('.cbi-value') : null;
+	}
+
+	function compactScheduleRow() {
+		var weekRow = getRowByName('auto_update_week_time');
+		var hourRow = getRowByName('auto_update_day_time');
+		var minRow = getRowByName('auto_update_min_time');
+		if (!weekRow || !hourRow || !minRow) return;
+
+		var weekField = weekRow.querySelector('.cbi-value-field');
+		var hourField = hourRow.querySelector('.cbi-value-field');
+		var minField = minRow.querySelector('.cbi-value-field');
+		if (!weekField || !hourField || !minField) return;
+
+		if (weekField.querySelector('.ssr-schedule-inline')) {
+			return;
+		}
+
+		var weekSelect = weekField.querySelector('select');
+		var hourSelect = hourField.querySelector('select');
+		var minSelect = minField.querySelector('select');
+		if (!weekSelect || !hourSelect || !minSelect) return;
+
+		var wrap = document.createElement('div');
+		wrap.className = 'ssr-schedule-inline';
+
+		function makeItem(title, select) {
+			var item = document.createElement('div');
+			item.className = 'ssr-schedule-item';
+			var subtitle = document.createElement('div');
+			subtitle.className = 'ssr-schedule-subtitle';
+			subtitle.textContent = title;
+			item.appendChild(subtitle);
+			item.appendChild(select);
+			return item;
+		}
+
+		wrap.appendChild(makeItem(shortLabel(weekRow, '<%:Day/Week%>'), weekSelect));
+		wrap.appendChild(makeItem(shortLabel(hourRow, '<%:Hour%>'), hourSelect));
+		wrap.appendChild(makeItem(shortLabel(minRow, '<%:Min%>'), minSelect));
+
+		weekField.innerHTML = '';
+		weekField.appendChild(wrap);
+
+		hourRow.classList.add('ssr-schedule-hidden');
+		minRow.classList.add('ssr-schedule-hidden');
+	}
+
+	compactScheduleRow();
+}
+
+(function() {
+	var retryCount = 0;
+	var maxRetries = 30;
+	var retryTimer = null;
+	var observer = null;
+
+	function hasCompactLayout() {
+		return !!document.querySelector('.ssr-schedule-inline');
+	}
+
+	function tryCompactSchedule() {
+		ssrCompactSubscribeSchedule();
+		if (hasCompactLayout()) {
+			if (retryTimer) {
+				window.clearTimeout(retryTimer);
+				retryTimer = null;
+			}
+			if (observer) {
+				observer.disconnect();
+				observer = null;
+			}
+			return;
+		}
+
+		if (retryCount >= maxRetries) {
+			return;
+		}
+
+		retryCount = retryCount + 1;
+		retryTimer = window.setTimeout(tryCompactSchedule, 200);
+	}
+
+	function startCompactWatcher() {
+		tryCompactSchedule();
+
+		if (window.MutationObserver) {
+			observer = new MutationObserver(function() {
+				if (!hasCompactLayout()) {
+					tryCompactSchedule();
+				}
+			});
+			observer.observe(document.body, { childList: true, subtree: true });
+		}
+	}
+
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', startCompactWatcher);
+		window.addEventListener('load', tryCompactSchedule);
+	} else {
+		startCompactWatcher();
+	}
+})();
+//]]>
+</script>

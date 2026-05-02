@@ -4,7 +4,7 @@ require "luci.sys"
 local m, s, o
 
 local function is_finded(e)
-	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
+	return luci.sys.exec(string.format('type -t -p "%s" -p "/usr/libexec/%s" 2>/dev/null', e, e)) ~= ""
 end
 
 m = Map("shadowsocksr")
@@ -58,14 +58,6 @@ luci.ip.neighbors({family = 4}, function(entry)
 end)
 
 o = s:taboption("lan_ac", DynamicList, "lan_fp_ips", translate("LAN Force Proxy Host List"))
-o.datatype = "ipaddr"
-luci.ip.neighbors({family = 4}, function(entry)
-	if entry.reachable then
-		o:value(entry.dest:string())
-	end
-end)
-
-o = s:taboption("lan_ac", DynamicList, "lan_gm_ips", translate("Game Mode Host List"))
 o.datatype = "ipaddr"
 luci.ip.neighbors({family = 4}, function(entry)
 	if entry.reachable then
@@ -129,22 +121,6 @@ o.remove = function(self, section, value)
 	nixio.fs.writefile(denydomainconf, "")
 end
 
-s:tab("netflix", translate("Netflix Domain List"))
-local netflixconf = "/etc/ssrplus/netflix.list"
-o = s:taboption("netflix", TextValue, "netflixconf")
-o.rows = 13
-o.wrap = "off"
-o.rmempty = true
-o.cfgvalue = function(self, section)
-	return nixio.fs.readfile(netflixconf) or " "
-end
-o.write = function(self, section, value)
-	nixio.fs.writefile(netflixconf, value:gsub("\r\n", "\n"))
-end
-o.remove = function(self, section, value)
-	nixio.fs.writefile(netflixconf, "")
-end
-
 if is_finded("dnsproxy") then
 	s:tab("dnsproxy", translate("Dnsproxy Parse List"))
 	local dnsproxyconf = "/etc/ssrplus/dnsproxy_dns.list"
@@ -169,5 +145,7 @@ if luci.sys.call('[ -f "/www/luci-static/resources/uci.js" ]') == 0 then
 		luci.sys.call("/etc/init.d/shadowsocksr reload > /dev/null 2>&1 &")
 	end
 end
+
+m:append(Template("shadowsocksr/control_layout"))
 
 return m

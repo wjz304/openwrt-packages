@@ -1,0 +1,35 @@
+<style type="text/css">
+	[id$="-subscribe_url"] .cbi-dynlist,
+	[id$="-subscribe_url"] .cbi-dynlist > .items,
+	[id$="-subscribe_url"] .cbi-dynlist > ul,
+	[id$="-subscribe_url"] .cbi-dynlist .items > ul {
+		width: 80%;
+		max-width: 80%;
+	}
+
+	[id$="-subscribe_url"] .cbi-dynlist > .items,
+	[id$="-subscribe_url"] .cbi-dynlist > ul,
+	[id$="-subscribe_url"] .cbi-dynlist .items > ul {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	[id$="-subscribe_url"] .cbi-dynlist input[type="text"],
+	[id$="-subscribe_url"] .cbi-dynlist input[type="search"],
+	[id$="-subscribe_url"] .cbi-dynlist li,
+	[id$="-subscribe_url"] .cbi-dynlist .item {
+		width: 80%;
+		max-width: 80%;
+		min-width: 0;
+		box-sizing: border-box;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	[id$="-subscribe_url"] .cbi-dynlist li *,
+	[id$="-subscribe_url"] .cbi-dynlist .item * {
+		white-space: nowrap;
+	}
+</style>
