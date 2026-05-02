@@ -4,6 +4,7 @@
 
 local m, s, sec, o
 local uci = require "luci.model.uci".cursor()
+local URL = require "url"
 
 -- 获取 LAN IP 地址
 function lanip()
@@ -31,28 +32,46 @@ end
 
 local lan_ip = lanip()
 local validation = require "luci.cbi.datatypes"
+local clash_nodes = {}
 local function is_finded(e)
-	return luci.sys.exec(string.format('type -t -p "%s" 2>/dev/null', e)) ~= ""
+	return luci.sys.exec(string.format('type -t -p "%s" -p "/usr/libexec/%s" 2>/dev/null', e, e)) ~= ""
 end
 
-m = Map("shadowsocksr", translate("ShadowSocksR Plus+ Settings"), translate("<h3>Support SS/SSR/V2RAY/XRAY/TROJAN/TUIC/HYSTERIA2/NAIVEPROXY/SOCKS5/TUN etc.</h3>"))
+local function clash_display_name(s)
+	if s.type ~= "clash" or not s.clash_url or s.clash_url == "" then
+		return nil
+	end
+	local ok, parsed = pcall(URL.parse, s.clash_url)
+	if ok and parsed and parsed.host then
+		return "[CLASH]:" .. parsed.host
+	end
+	return "[CLASH]"
+end
+
+m = Map("shadowsocksr", translate("ShadowSocksR Plus+ Settings"), translate("<h3>Support SS/SSR/V2RAY/XRAY/TROJAN/TUIC/HYSTERIA2/NAIVEPROXY/SOCKS5/CLASH etc.</h3>"))
 m:section(SimpleSection).template = "shadowsocksr/status"
 
 local server_table = {}
+local server_order = {}
 uci:foreach("shadowsocksr", "servers", function(s)
-	if s.alias then
+	if s.type == "clash" then
+		clash_nodes[s[".name"]] = true
+	end
+
+	if s.type ~= "tun" and s.alias then
 		server_table[s[".name"]] = "[%s]:%s" % {string.upper(s.v2ray_protocol or s.type), s.alias}
-	elseif s.server and s.server_port then
+	elseif s.type ~= "tun" and s.server and s.server_port then
 		server_table[s[".name"]] = "[%s]:%s:%s" % {string.upper(s.v2ray_protocol or s.type), s.server, s.server_port}
+	elseif s.type ~= "tun" then
+		local display_name = clash_display_name(s)
+		if display_name then
+			server_table[s[".name"]] = display_name
+		end
+	end
+	if s.type ~= "tun" and server_table[s[".name"]] then
+		table.insert(server_order, s[".name"])
 	end
 end)
-
-local key_table = {}
-for key, _ in pairs(server_table) do
-	table.insert(key_table, key)
-end
-
-table.sort(key_table)
 
 -- [[ Global Setting ]]--
 s = m:section(TypedSection, "global")
@@ -60,40 +79,15 @@ s.anonymous = true
 
 o = s:option(ListValue, "global_server", translate("Main Server"))
 o:value("nil", translate("Disable"))
-for _, key in pairs(key_table) do
+for _, key in ipairs(server_order) do
 	o:value(key, server_table[key])
 end
 o.default = "nil"
 o.rmempty = false
 
-o = s:option(ListValue, "udp_relay_server", translate("Game Mode UDP Server"))
-o:value("", translate("Disable"))
-o:value("same", translate("Same as Global Server"))
-for _, key in pairs(key_table) do
-	o:value(key, server_table[key])
-end
-
-if uci:get_first("shadowsocksr", 'global', 'netflix_enable', '0') == '1' then
-	o = s:option(ListValue, "netflix_server", translate("Netflix Node"))
-	o:value("nil", translate("Disable"))
-	o:value("same", translate("Same as Global Server"))
-	for _, key in pairs(key_table) do
-		o:value(key, server_table[key])
-	end
-	o.default = "nil"
-	o.rmempty = false
-
-	o = s:option(Flag, "netflix_proxy", translate("External Proxy Mode"))
-	o.rmempty = false
-	o.description = translate("Forward Netflix Proxy through Main Proxy")
-	o.default = "0"
-end
-
--- [[ Use nftables/iptables ]]--
-o = s:option(ListValue, "prefer_nft", translate("Prefer firewall tools"))
-o.default = "1"
-o:value("0", "Iptables")
-o:value("1", "Nftables")
+o = s:option(DummyValue, "_clash_panel", translate("Clash Panel"))
+o.template = "shadowsocksr/clash_main_panel"
+o.clash_nodes = clash_nodes
 
 o = s:option(ListValue, "threads", translate("Multi Threads Option"))
 o:value("0", translate("Auto Threads"))
@@ -112,7 +106,6 @@ o = s:option(ListValue, "run_mode", translate("Running Mode"))
 o:value("gfw", translate("GFW List Mode"))
 o:value("router", translate("IP Route Mode"))
 o:value("all", translate("Global Mode"))
-o:value("oversea", translate("Oversea Mode"))
 o.default = gfw
 
 o = s:option(ListValue, "dports", translate("Proxy Ports"))
@@ -128,14 +121,8 @@ o = s:option(ListValue, "pdnsd_enable", translate("Resolve Dns Mode"))
 if is_finded("dns2tcp") then
 	o:value("1", translate("Use DNS2TCP query"))
 end
-if is_finded("dns2socks") then
-	o:value("2", translate("Use DNS2SOCKS query and cache"))
-end
-if is_finded("dns2socks-rust") then
-	o:value("3", translate("Use DNS2SOCKS-RUST query and cache"))
-end
 if is_finded("mosdns") then
-	o:value("4", translate("Use MOSDNS query (Not Support Oversea Mode)"))
+	o:value("4", translate("Use MosDNS query"))
 end
 if is_finded("dnsproxy") then
 	o:value("5", translate("Use DNSPROXY query and cache"))
@@ -143,6 +130,7 @@ end
 if is_finded("chinadns-ng") then
 	o:value("6", translate("Use ChinaDNS-NG query and cache"))
 end
+o:value("7", translate("Prefer module built-in DNS"))
 o:value("0", translate("Use Local DNS Service listen port 5335"))
 o.default = 1
 
@@ -158,11 +146,8 @@ o:value("4.2.2.2:53", translate("Level 3 Public DNS (4.2.2.2)"))
 o:value("4.2.2.3:53", translate("Level 3 Public DNS (4.2.2.3)"))
 o:value("4.2.2.4:53", translate("Level 3 Public DNS (4.2.2.4)"))
 o:value("1.1.1.1:53", translate("Cloudflare DNS (1.1.1.1)"))
-o:value("114.114.114.114:53", translate("Oversea Mode DNS-1 (114.114.114.114)"))
-o:value("114.114.115.115:53", translate("Oversea Mode DNS-2 (114.114.115.115)"))
 o:depends("pdnsd_enable", "1")
-o:depends("pdnsd_enable", "2")
-o:depends("pdnsd_enable", "3")
+o:depends("pdnsd_enable", "7")
 o.description = translate("Custom DNS Server format as IP:PORT (default: 8.8.4.4:53)")
 o.datatype = "ip4addrport"
 o.default = "8.8.4.4:53"
@@ -177,8 +162,10 @@ o:value("tcp://1.1.1.1:53,tcp://1.0.0.1:53", translate("Cloudflare DNS"))
 o:depends("pdnsd_enable", "4")
 o.description = translate("Custom DNS Server format as tcp://IP:PORT or tls://DOMAIN:PORT (tcp://8.8.8.8 or tls://dns.google:853)")
 
-o = s:option(Flag, "mosdns_ipv6", translate("Disable IPv6 in MOSDNS query mode"))
+o = s:option(Flag, "filter_aaaa", translate("Disable IPv6 for Overseas FQDN"))
+o:depends("pdnsd_enable", "1")
 o:depends("pdnsd_enable", "4")
+o:depends("pdnsd_enable", "7")
 o.rmempty = false
 o.default = "1"
 
@@ -271,8 +258,6 @@ if is_finded("chinadns-ng") then
 	o:value("123.125.81.6:53", translate("360 Security DNS (China Unicom) (123.125.81.6)"))
 	o:value("1.2.4.8:53", translate("CNNIC SDNS (1.2.4.8)"))
 	o:depends({pdnsd_enable = "1", run_mode = "router"})
-	o:depends({pdnsd_enable = "2", run_mode = "router"})
-	o:depends({pdnsd_enable = "3", run_mode = "router"})
 	o:depends({pdnsd_enable = "5", run_mode = "router"})
 	o:depends({pdnsd_enable = "6", run_mode = "router"})
 	o.description = translate("Custom DNS Server format as IP:PORT (default: disabled)")

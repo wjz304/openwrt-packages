@@ -1,25 +1,19 @@
 <%+cbi/valueheader%>
 <%
 local map = self.map
-local ss_type = map:get("@server_subscribe[0]", "ss_type")
 local xray_hy2_type = map:get("@server_subscribe[0]", "xray_hy2_type")
-local xray_tj_type = map:get("@server_subscribe[0]", "xray_tj_type")
 
 local has_ss_rust = luci.sys.exec('type -t -p sslocal 2>/dev/null || type -t -p ssserver 2>/dev/null') ~= ""
 local has_ss_libev = luci.sys.exec('type -t -p ss-redir 2>/dev/null || type -t -p ss-local 2>/dev/null') ~= ""
 local has_hysteria = luci.sys.exec('type -t -p hysteria 2>/dev/null') ~= ""
-local has_trojan = luci.sys.exec('type -t -p trojan 2>/dev/null') ~= ""
 local has_xray = luci.sys.exec('type -t -p xray 2>/dev/null') ~= ""
 -%>
 <script type="text/javascript">
 //<![CDATA[
-let ss_type = "<%=ss_type%>"
 let xray_hy2_type = "<%=xray_hy2_type%>"
-let xray_tj_type = "<%=xray_tj_type%>"
 let has_ss_rust = "<%=has_ss_rust%>"
 let has_ss_libev = "<%=has_ss_libev%>"
 let has_hysteria = "<%=has_hysteria%>"
-let has_trojan = "<%=has_trojan%>"
 let has_xray = "<%=has_xray%>"
 
 function padright(str, cnt, pad) {
@@ -40,6 +34,13 @@ function b64DecodeUnicode(str) {
 	return decodeURIComponent(Array.prototype.map.call(atob(str), function (c) {
 		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
 	}).join(''));
+}
+
+function normalizeHost(host) {
+	if (host && host[0] === "[" && host[host.length - 1] === "]") {
+		return host.slice(1, -1);
+	}
+	return host;
 }
 
 function b64decutf8safe(str) {
@@ -213,7 +214,7 @@ function import_ssr_url(btn, urlname, sid) {
 			else importAsNormalHy2();
 
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = url.hash ? decodeURIComponent(url.hash.slice(1)) : "";
-			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port || "443";
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.hy2_auth')[0].value = decodeURIComponent(url.username);
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.hy2_auth')[0].dispatchEvent(event);
@@ -377,11 +378,7 @@ function import_ssr_url(btn, urlname, sid) {
 				}
 
 				// === 填充配置项 ===
-				//var has_ss_type = (ss_type === "ss-rust") ? "ss-rust" : "ss-libev";
-				// 设置 _ss_core 的值
-				var ssCore = (ss_type === "ss-rust" || ss_type === "ss-libev") 
-							 ? ss_type 
-							 : (has_ss_rust ? "ss-rust" : (has_ss_libev ? "ss-libev" : "ss-libev"));
+				var ssCore = has_ss_rust ? "ss-rust" : "ss-libev";
 
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = ssu[0];
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
@@ -389,8 +386,6 @@ function import_ssr_url(btn, urlname, sid) {
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '._ss_core')[0].value = ssCore;
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '._ss_core')[0].dispatchEvent(event);
 
-				//document.getElementsByName('cbid.shadowsocksr.' + sid + '.has_ss_type')[0].value = has_ss_type;
-				//document.getElementsByName('cbid.shadowsocksr.' + sid + '.has_ss_type')[0].dispatchEvent(event);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = server;
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = port;
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = password || "";
@@ -475,7 +470,7 @@ function import_ssr_url(btn, urlname, sid) {
 				dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.type', event);
 				setElementValue('cbid.shadowsocksr.' + sid + '.v2ray_protocol', "shadowsocks");
 				dispatchEventIfExists('cbid.shadowsocksr.' + sid + '.v2ray_protocol', event);
-				setElementValue('cbid.shadowsocksr.' + sid + '.server', url.hostname);
+				setElementValue('cbid.shadowsocksr.' + sid + '.server', normalizeHost(url.hostname));
 				setElementValue('cbid.shadowsocksr.' + sid + '.server_port', url.port || "80");
 				setElementValue('cbid.shadowsocksr.' + sid + '.password', password || url.username);
 				setElementValue('cbid.shadowsocksr.' + sid + '.transport', 
@@ -598,41 +593,18 @@ function import_ssr_url(btn, urlname, sid) {
 				return true;
 			}
 
-			// 主逻辑：智能核心选择（支持回退）
-			function hasSSCore() { return has_ss_rust === "true" || has_ss_libev === "true"; }
-			function hasXrayCore() { return has_xray === "true"; }
-			let finalSSType = null; // true=Xray, false=普通SS, null=无核心
-			if (ss_type === "v2ray") {
-				if (hasXrayCore()) finalSSType = true;
-				else if (hasSSCore()) finalSSType = false;
-				else finalSSType = null;
-			} else if (ss_type === "ss-rust" || ss_type === "ss-libev") {
-				let userSSCore = (ss_type === "ss-rust" && has_ss_rust === "true") || (ss_type === "ss-libev" && has_ss_libev === "true");
-				if (userSSCore) finalSSType = false;
-				else {
-					let otherSSCore = (ss_type === "ss-rust" && has_ss_libev === "true") || (ss_type === "ss-libev" && has_ss_rust === "true");
-					if (otherSSCore) finalSSType = false;
-					else if (hasXrayCore()) finalSSType = true;
-					else finalSSType = null;
-				}
-			} else {
-				// auto 或空：根据 type 参数决定
-				let hasType = params.type && params.type !== "";
-				if (hasType) {
-					if (hasXrayCore()) finalSSType = true;
-					else if (hasSSCore()) finalSSType = false;
-					else finalSSType = null;
-				} else {
-					if (hasSSCore()) finalSSType = false;
-					else if (hasXrayCore()) finalSSType = true;
-					else finalSSType = null;
-				}
+			function preferredSSBackend() {
+				if (has_ss_rust === "true") return "ss-rust";
+				if (has_ss_libev === "true") return "ss-libev";
+				if (has_xray === "true") return "v2ray";
+				return null;
 			}
-			if (finalSSType === null) {
+			let finalSSBackend = preferredSSBackend();
+			if (finalSSBackend === null) {
 				s.innerHTML = "<font style=\'color:red\'><%:No available core (Shadowsocks or Xray) to import this node.%></font>";
 				return false;
 			}
-			if (finalSSType === true) importAsXraySS();
+			if (finalSSBackend === "v2ray") importAsXraySS();
 			else importAsNormalSS();
 			return false;
 		case "ssr":
@@ -685,7 +657,7 @@ function import_ssr_url(btn, urlname, sid) {
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.alias')[0].value = url.hash ? decodeURIComponent(url.hash.slice(1)) : "";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = "trojan";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port || "80";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = decodeURIComponent(url.username);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls')[0].checked = true;
@@ -714,7 +686,7 @@ function import_ssr_url(btn, urlname, sid) {
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.v2ray_protocol')[0].value = "trojan";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.v2ray_protocol')[0].dispatchEvent(event);
-				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port || "80";
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.password')[0].value = decodeURIComponent(url.username);
 				document.getElementsByName('cbid.shadowsocksr.' + sid + '.tls')[0].checked = true;
@@ -814,36 +786,13 @@ function import_ssr_url(btn, urlname, sid) {
 				return true;
 			}
 
-			// 主逻辑：智能核心选择（支持回退）
-			function hasTrojanCore() { return has_trojan === "true"; }
+			// 主逻辑：Trojan 统一使用 Xray
 			function hasXrayCore() { return has_xray === "true"; }
-			let finalTrojanMode = null;
-			if (xray_tj_type === "v2ray") {
-				if (hasXrayCore()) finalTrojanMode = true;
-				else if (hasTrojanCore()) finalTrojanMode = false;
-				else finalTrojanMode = null;
-			} else if (xray_tj_type === "trojan") {
-				if (hasTrojanCore()) finalTrojanMode = false;
-				else if (hasXrayCore()) finalTrojanMode = true;
-				else finalTrojanMode = null;
-			} else {
-				let hasType = params.get("type") && params.get("type") !== "";
-				if (hasType) {
-					if (hasXrayCore()) finalTrojanMode = true;
-					else if (hasTrojanCore()) finalTrojanMode = false;
-					else finalTrojanMode = null;
-				} else {
-					if (hasTrojanCore()) finalTrojanMode = false;
-					else if (hasXrayCore()) finalTrojanMode = true;
-					else finalTrojanMode = null;
-				}
-			}
-			if (finalTrojanMode === null) {
-				s.innerHTML = "<font style=\'color:red\'><%:No available core (Trojan or Xray) to import this node.%></font>";
+			if (!hasXrayCore()) {
+				s.innerHTML = "<font style=\'color:red\'><%:No available core (Xray) to import this node.%></font>";
 				return false;
 			}
-			if (finalTrojanMode === true) importAsXrayTrojan();
-			else importAsNormalTrojan();
+			importAsXrayTrojan();
 			return false;
 		case "vmess":
 			var sstr = b64DecodeUnicode((ssu[1] || "").replace(/#.*/, "").trim());
@@ -976,7 +925,7 @@ function import_ssr_url(btn, urlname, sid) {
 					element.dispatchEvent(event);
 				}
 			}
-			var server = url.hostname;
+			var server = normalizeHost(url.hostname);
 			/* 如果带 []，再去掉 [] */
 			if (server[0] === "[" && server[server.length - 1] === "]") {
 				server = server.slice(1, -1);
@@ -1141,7 +1090,7 @@ function import_ssr_url(btn, urlname, sid) {
 
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].value = ssu[0];
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.type')[0].dispatchEvent(event);
-			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = url.hostname;
+			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server')[0].value = normalizeHost(url.hostname);
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.server_port')[0].value = url.port;
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.tuic_uuid')[0].value = method;
 			document.getElementsByName('cbid.shadowsocksr.' + sid + '.tuic_ip')[0].value = params.ip || "";

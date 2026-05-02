@@ -1,0 +1,397 @@
+<%+cbi/valueheader%>
+<%
+local clash_nodes = self.clash_nodes or {}
+local current_sid = self.map:get(section, "global_server") or "nil"
+-%>
+<div id="ssr-clash-main-panel-wrap">
+	<style type="text/css">
+		#ssr-clash-modal-mask {
+			display: none;
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.35);
+			z-index: 2000;
+		}
+
+		#ssr-clash-modal {
+			display: none;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: min(900px, calc(100vw - 32px));
+			max-height: min(720px, calc(100vh - 80px));
+			overflow: auto;
+			background: #fff;
+			border-radius: 10px;
+			box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+			z-index: 2001;
+			padding: 12px 16px 14px;
+		}
+
+		#ssr-clash-modal-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			margin-bottom: 8px;
+		}
+
+		#ssr-clash-modal-title {
+			font-size: 17px;
+			font-weight: 600;
+			color: #333;
+		}
+
+		#ssr-clash-modal-actions {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			margin: 0 0 8px;
+		}
+
+		#ssr-clash-modal-status {
+			margin: 0 0 8px;
+			color: #666;
+		}
+
+		@media (max-width: 700px) {
+			#ssr-clash-modal {
+				width: calc(100vw - 16px);
+				max-height: calc(100vh - 24px);
+				padding: 10px 12px 12px;
+			}
+
+			#ssr-clash-modal-header {
+				flex-direction: column;
+				align-items: flex-start;
+			}
+		}
+	</style>
+
+	<script type="text/javascript">
+	if (typeof(window.ssrClashRefreshSubscription) !== "function") {
+		window.ssrClashRefreshSubscription = function(btn, sid) {
+			var original = btn.value;
+			btn.disabled = true;
+			btn.value = '<%:Reloading YAML...%>';
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_refresh")%>', {
+				sid: sid
+			}, function(x, result) {
+				btn.disabled = false;
+				btn.value = original;
+				if (result && result.success) {
+					btn.value = result.reapplied ? '<%:Reapply%>' : '<%:YAML Reloaded!%>';
+					setTimeout(function() { btn.value = original; }, 1200);
+				} else {
+					btn.value = '<%:YAML Reload Failed!%>';
+					setTimeout(function() { btn.value = original; }, 1500);
+				}
+			});
+			return false;
+		}
+	}
+
+	if (typeof(window.ssrClashResetDefaults) !== "function") {
+		window.ssrClashResetDefaults = function(btn, sid) {
+			var original = btn.value;
+			if (!window.confirm('<%:Reset saved Mihomo proxy-group selections and restore YAML defaults?%>')) {
+				return false;
+			}
+			btn.disabled = true;
+			btn.value = '<%:Resetting Defaults...%>';
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_reset_defaults")%>', {
+				sid: sid
+			}, function(x, result) {
+				btn.disabled = false;
+				btn.value = original;
+				if (result && result.success) {
+					btn.value = result.reapplied ? '<%:Defaults Restored!%>' : '<%:Defaults Cleared!%>';
+					setTimeout(function() { btn.value = original; }, 1500);
+				} else {
+					btn.value = '<%:Reset Defaults Failed!%>';
+					setTimeout(function() { btn.value = original; }, 1600);
+				}
+			});
+			return false;
+		}
+	}
+
+	(function() {
+		var currentPanelSid = '<%=current_sid%>';
+		var clashNodes = {
+		<%
+			for sid, _ in pairs(clash_nodes) do
+		-%>
+			<%=string.format("%q", sid)%>: true,
+		<% end -%>
+		};
+
+		function setPanelStatus(text, color) {
+			var statusEl = document.getElementById('ssr-clash-modal-status');
+			if (!statusEl) {
+				return;
+			}
+			statusEl.style.color = color || '#666';
+			statusEl.textContent = text;
+		}
+
+		function translateClashName(name) {
+			var dict = {
+				'Selector': '选择器',
+				'DIRECT': '直连',
+				'Direct': '直连',
+				'REJECT': '拒绝',
+				'Reject': '拒绝',
+				'Proxy': '代理',
+				'Domestic': '国内',
+				'GlobalTV': '国际流媒体',
+				'AsianTV': '亚洲流媒体',
+				'Others': '其他',
+				'GLOBAL': '全局',
+				'URLTest': '自动选择',
+				'Fallback': '故障转移',
+				'LoadBalance': '负载均衡',
+				'Compatible': '兼容',
+				'Pass': '放行'
+			};
+			return dict[name] || name;
+		}
+
+		function renderGroups(groups) {
+			var groupsEl = document.getElementById('ssr-clash-modal-groups');
+			if (!groupsEl) {
+				return;
+			}
+
+			groupsEl.innerHTML = '';
+			if (!groups || !groups.length) {
+				groupsEl.innerHTML = '<p><%:No switchable proxy groups found.%></p>';
+				return;
+			}
+
+			groups.forEach(function(group) {
+				var wrapper = document.createElement('div');
+				wrapper.className = 'cbi-value';
+				wrapper.style.marginBottom = '0.5em';
+
+				var label = document.createElement('label');
+				label.className = 'cbi-value-title';
+				label.textContent = translateClashName(group.name) + (group.type ? ' (' + translateClashName(group.type) + ')' : '');
+
+				var field = document.createElement('div');
+				field.className = 'cbi-value-field';
+
+				var select = document.createElement('select');
+				select.className = 'cbi-input-select';
+				group.all.forEach(function(name) {
+					var option = document.createElement('option');
+					option.value = name;
+					option.textContent = translateClashName(name);
+					if (name === group.now) {
+						option.selected = true;
+					}
+					select.appendChild(option);
+				});
+
+				select.onchange = function() {
+					setPanelStatus('<%:Switching...%>', '#0072c3');
+					XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_switch")%>', {
+						sid: currentPanelSid,
+						group: group.name,
+						name: select.value
+					}, function(x, result) {
+						if (result && result.success) {
+							setPanelStatus('<%:Switched successfully.%>', '#249400');
+							loadGroups(currentPanelSid);
+						} else {
+							setPanelStatus('<%:Switch failed.%>', '#ff0000');
+						}
+					});
+				};
+
+				field.appendChild(select);
+				wrapper.appendChild(label);
+				wrapper.appendChild(field);
+				groupsEl.appendChild(wrapper);
+			});
+		}
+
+		function loadGroups(sid) {
+			setPanelStatus('<%:Loading...%>', '#666');
+			XHR.get('<%=luci.dispatcher.build_url("admin", "services", "shadowsocksr", "clash_groups")%>', {
+				sid: sid
+			}, function(x, result) {
+				var groupsEl = document.getElementById('ssr-clash-modal-groups');
+				if (result && result.sid) {
+					currentPanelSid = result.sid;
+				}
+				if (!result || !result.active) {
+					setPanelStatus('<%:This Clash total node is not active. Apply this node first.%>', '#ff7700');
+					if (groupsEl) {
+						groupsEl.innerHTML = '';
+					}
+					return;
+				}
+
+				setPanelStatus('<%:Ready.%>', '#249400');
+				renderGroups(result.groups || []);
+			});
+		}
+
+		function openPanel(sid) {
+			var modal = document.getElementById('ssr-clash-modal');
+			var mask = document.getElementById('ssr-clash-modal-mask');
+			var title = document.getElementById('ssr-clash-modal-title');
+			if (!modal || !mask) {
+				return false;
+			}
+
+			currentPanelSid = sid;
+			if (title) {
+				title.textContent = '<%:Clash Panel%>';
+			}
+
+			mask.style.display = 'block';
+			modal.style.display = 'block';
+			loadGroups(sid);
+			return false;
+		}
+
+		function closePanel() {
+			var modal = document.getElementById('ssr-clash-modal');
+			var mask = document.getElementById('ssr-clash-modal-mask');
+			if (modal) {
+				modal.style.display = 'none';
+			}
+			if (mask) {
+				mask.style.display = 'none';
+			}
+			return false;
+		}
+
+		function updateClashPanelMain() {
+			var select = document.querySelector('select[name$=".global_server"]');
+			var wrap = document.getElementById('ssr-clash-main-panel-wrap');
+			var row = wrap ? wrap.closest('.cbi-value') : null;
+			var refreshBtn = document.getElementById('ssr-clash-main-refresh');
+			var resetBtn = document.getElementById('ssr-clash-main-reset-defaults');
+			var panelBtn = document.getElementById('ssr-clash-main-open');
+			if (!select || !row || !refreshBtn || !resetBtn || !panelBtn) {
+				return;
+			}
+
+			var sid = select.value;
+			if (sid && clashNodes[sid]) {
+				row.style.display = '';
+				refreshBtn.setAttribute('data-sid', sid);
+				resetBtn.setAttribute('data-sid', sid);
+				panelBtn.setAttribute('data-sid', sid);
+			} else {
+				row.style.display = 'none';
+				refreshBtn.setAttribute('data-sid', '');
+				resetBtn.setAttribute('data-sid', '');
+				panelBtn.setAttribute('data-sid', '');
+			}
+		}
+
+		window.setTimeout(function() {
+			var select = document.querySelector('select[name$=".global_server"]');
+			var refreshBtn = document.getElementById('ssr-clash-main-refresh');
+			var resetBtn = document.getElementById('ssr-clash-main-reset-defaults');
+			var panelBtn = document.getElementById('ssr-clash-main-open');
+			var modalRefreshBtn = document.getElementById('ssr-clash-modal-refresh');
+			var modalCloseBtn = document.getElementById('ssr-clash-modal-close');
+			var modalMask = document.getElementById('ssr-clash-modal-mask');
+			var wrap = document.getElementById('ssr-clash-main-panel-wrap');
+			var row = wrap ? wrap.closest('.cbi-value') : null;
+
+			if (row && !clashNodes['<%=current_sid%>']) {
+				row.style.display = 'none';
+			}
+
+			if (select) {
+				select.addEventListener('change', updateClashPanelMain);
+			}
+
+			if (refreshBtn) {
+				refreshBtn.onclick = function() {
+					var sid = this.getAttribute('data-sid');
+					if (!sid) return false;
+					return ssrClashRefreshSubscription(this, sid);
+				};
+			}
+
+			if (resetBtn) {
+				resetBtn.onclick = function() {
+					var sid = this.getAttribute('data-sid');
+					if (!sid) return false;
+					return ssrClashResetDefaults(this, sid);
+				};
+			}
+
+			if (panelBtn) {
+				panelBtn.onclick = function() {
+					var sid = this.getAttribute('data-sid');
+					if (!sid) return false;
+					return openPanel(sid);
+				};
+			}
+
+			if (modalRefreshBtn) {
+				modalRefreshBtn.onclick = function() {
+					if (!currentPanelSid) return false;
+					loadGroups(currentPanelSid);
+					return false;
+				};
+			}
+
+			if (modalCloseBtn) {
+				modalCloseBtn.onclick = closePanel;
+			}
+
+			if (modalMask) {
+				modalMask.onclick = closePanel;
+			}
+
+			updateClashPanelMain();
+		}, 0);
+	})();
+	</script>
+
+	<input
+		type="button"
+		id="ssr-clash-main-refresh"
+		class="btn cbi-button"
+		value="<%:Reload YAML%>"
+		title="<%:Reload YAML%>"
+		data-sid="<%=current_sid%>" />
+	<input
+		type="button"
+		id="ssr-clash-main-reset-defaults"
+		class="btn cbi-button"
+		value="<%:Reset Default Proxies Rules%>"
+		title="<%:Reset Default Proxies Rules%>"
+		data-sid="<%=current_sid%>" />
+	<input
+		type="button"
+		id="ssr-clash-main-open"
+		class="btn cbi-button cbi-button-apply"
+		value="<%:Mihomo Pannel%>"
+		title="<%:Mihomo Pannel%>"
+		data-sid="<%=current_sid%>" />
+
+	<div id="ssr-clash-modal-mask"></div>
+	<div id="ssr-clash-modal" role="dialog" aria-modal="true" aria-labelledby="ssr-clash-modal-title">
+		<div id="ssr-clash-modal-header">
+			<div id="ssr-clash-modal-title"><%:Clash Panel%></div>
+			<input type="button" id="ssr-clash-modal-close" class="btn cbi-button" value="<%:Close%>" />
+		</div>
+		<div id="ssr-clash-modal-actions">
+			<input type="button" id="ssr-clash-modal-refresh" class="btn cbi-button cbi-button-apply" value="<%:Refresh%>" />
+		</div>
+		<div id="ssr-clash-modal-status"></div>
+		<div id="ssr-clash-modal-groups"></div>
+	</div>
+</div>
+<%+cbi/valuefooter%>
