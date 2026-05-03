@@ -263,6 +263,59 @@ local function merge(raw_path, overlay_path, output_path)
 	return true
 end
 
+local function append_client_policy_rules(runtime_path)
+	local doc, err = load_yaml(runtime_path)
+	if not doc then
+		io.stderr:write(err or "parse_failed", "\n")
+		return false
+	end
+
+	local custom_rules = {}
+	uci:foreach("shadowsocksr", "clash_client_group", function(section)
+		if tostring(section.enabled or "0") == "1" then
+			local ip_addr = tostring(section.ip_addr or "")
+			local policy_group = tostring(section.policy_group or "")
+			if ip_addr ~= "" and policy_group ~= "" then
+				if not ip_addr:find("/", 1, true) then
+					ip_addr = ip_addr .. "/32"
+				end
+				custom_rules[#custom_rules + 1] = string.format("SRC-IP-CIDR,%s,%s", ip_addr, policy_group)
+			end
+		end
+	end)
+
+	if #custom_rules == 0 then
+		io.stdout:write("client_rules=0\n")
+		return true
+	end
+
+	local existing_rules = {}
+	for _, rule in ipairs(doc.rules or {}) do
+		local text = tostring(rule or "")
+		if not text:match("^SRC%-IP%-CIDR,") then
+			existing_rules[#existing_rules + 1] = rule
+		end
+	end
+
+	doc.rules = {}
+	for _, rule in ipairs(custom_rules) do
+		doc.rules[#doc.rules + 1] = rule
+	end
+	for _, rule in ipairs(existing_rules) do
+		doc.rules[#doc.rules + 1] = rule
+	end
+
+	local ok, rendered = pcall(lyaml.dump, { doc })
+	if not ok or not rendered then
+		io.stderr:write("dump_failed\n")
+		return false
+	end
+
+	write_file(runtime_path, rendered)
+	io.stdout:write(string.format("client_rules=%d\n", #custom_rules))
+	return true
+end
+
 local function bool_enabled(value)
 	return value == "1" or value == 1 or value == true or value == "true"
 end
@@ -408,9 +461,11 @@ elseif action == "prepare" then
 	os.exit(prepare(arg[2], arg[3]) and 0 or 1)
 elseif action == "merge" then
 	os.exit(merge(arg[2], arg[3], arg[4]) and 0 or 1)
+elseif action == "append_client_policy_rules" then
+	os.exit(append_client_policy_rules(arg[2]) and 0 or 1)
 elseif action == "tuic" then
 	os.exit(generate_tuic_runtime(arg[2], arg[3], arg[4], arg[5], arg[6]) and 0 or 1)
 else
-	io.stderr:write("usage: clash_yaml.lua validate <yaml> | filter <yaml> <words> | prepare <input> <output> | merge <raw> <overlay> <output> | tuic <sid> <output> <local_port> [socks_port] [mode]\n")
+	io.stderr:write("usage: clash_yaml.lua validate <yaml> | filter <yaml> <words> | prepare <input> <output> | merge <raw> <overlay> <output> | append_client_policy_rules <runtime_yaml> | tuic <sid> <output> <local_port> [socks_port] [mode]\n")
 	os.exit(1)
 end

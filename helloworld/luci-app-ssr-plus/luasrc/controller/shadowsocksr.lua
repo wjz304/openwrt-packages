@@ -5,6 +5,8 @@ require "nixio"
 require "nixio.fs"
 require "luci.util"
 require "luci.template"
+require "luci.sys"
+local datatypes = require "luci.cbi.datatypes"
 local json = require "luci.jsonc"
 local uci = require "luci.model.uci".cursor()
 
@@ -22,6 +24,68 @@ local SUPPORTED_GEO_COMPONENTS = {
 	geosite = true,
 	v2ray_geo = true
 }
+
+local function trim(value)
+	return tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+local function sanitize_mac(value)
+	value = trim(value):upper():gsub("-", ":")
+	if value:match("^%x%x:%x%x:%x%x:%x%x:%x%x:%x%x$") then
+		return value
+	end
+	return ""
+end
+
+local function normalize_client_ip(value)
+	value = trim(value)
+	if value == "" then
+		return ""
+	end
+	if datatypes.cidr4(value) or datatypes.ip4addr(value) then
+		return value
+	end
+	return ""
+end
+
+local function collect_lan_clients()
+	local clients = {}
+	local seen = {}
+
+	luci.sys.net.host_hints(function(mac, ipv4, _, name)
+		local ip = trim(ipv4)
+		local norm_mac = sanitize_mac(mac)
+		if ip ~= "" and not seen[ip] then
+			seen[ip] = true
+			clients[#clients + 1] = {
+				ip = ip,
+				mac = norm_mac,
+				name = trim(name) ~= "" and trim(name) or ip
+			}
+		end
+	end)
+
+	table.sort(clients, function(a, b)
+		return tostring(a.name or a.ip) < tostring(b.name or b.ip)
+	end)
+
+	return clients
+end
+
+local function read_clash_client_rules()
+	local rules = {}
+	uci:foreach("shadowsocksr", "clash_client_group", function(section)
+		rules[#rules + 1] = {
+			id = section[".name"],
+			enabled = section.enabled == "1",
+			remarks = section.remarks or "",
+			ip_addr = section.ip_addr or "",
+			client_mac = section.client_mac or "",
+			policy_group = section.policy_group or ""
+		}
+	end)
+	return rules
+end
 
 local function normalize_ping_ms(value, scale)
 	local num = tonumber(value)
@@ -418,6 +482,9 @@ function index()
 	entry({"admin", "services", "shadowsocksr", "clash_switch"}, call("clash_switch")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "clash_refresh"}, call("clash_refresh")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "clash_reset_defaults"}, call("clash_reset_defaults")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_client_policies"}, call("clash_client_policies")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_client_rule_save"}, call("clash_client_rule_save")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "clash_client_rule_clear"}, call("clash_client_rule_clear")).leaf = true
 	--[[Backup]]
 	entry({"admin", "services", "shadowsocksr", "backup"}, call("create_backup")).leaf = true
 end
@@ -762,6 +829,135 @@ function clash_reset_defaults()
 	luci.http.write_json({
 		success = cleared,
 		reapplied = reapplied
+	})
+end
+
+function clash_client_policies()
+	local sid = luci.http.formvalue("sid")
+	local active_sid = resolve_active_clash_sid(sid)
+	local groups = {}
+	if active_sid then
+		local raw = clash_api_request(active_sid, "GET", "/proxies")
+		if raw then
+			groups = parse_clash_groups(raw.body)
+		end
+	end
+
+	local policies = {}
+	local seen = {}
+	for _, group in ipairs(groups or {}) do
+		if group.name and not seen[group.name] then
+			seen[group.name] = true
+			policies[#policies + 1] = {
+				name = group.name,
+				label = group.name,
+				type = group.type or ""
+			}
+		end
+		for _, proxy_name in ipairs(group.all or {}) do
+			if proxy_name and proxy_name ~= "" and not seen[proxy_name] then
+				seen[proxy_name] = true
+				policies[#policies + 1] = {
+					name = proxy_name,
+					label = proxy_name,
+					type = "proxy"
+				}
+			end
+		end
+	end
+
+	table.sort(policies, function(a, b)
+		return tostring(a.label or a.name) < tostring(b.label or b.name)
+	end)
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		active = active_sid ~= nil,
+		sid = active_sid,
+		clients = collect_lan_clients(),
+		rules = read_clash_client_rules(),
+		policies = policies
+	})
+end
+
+function clash_client_rule_save()
+	local sid = luci.http.formvalue("sid")
+	local rows = {}
+	local max_rows = tonumber(luci.http.formvalue("count") or "0") or 0
+
+	for index = 1, math.min(max_rows, 256) do
+		local prefix = string.format("rule_%d_", index)
+		local ip_addr = normalize_client_ip(luci.http.formvalue(prefix .. "ip_addr"))
+		local enabled = luci.http.formvalue(prefix .. "enabled") == "1" and "1" or "0"
+		local remarks = trim(luci.http.formvalue(prefix .. "remarks"))
+		local policy_group = trim(luci.http.formvalue(prefix .. "policy_group"))
+		local client_mac = sanitize_mac(luci.http.formvalue(prefix .. "client_mac"))
+
+		if ip_addr ~= "" and policy_group ~= "" then
+			rows[#rows + 1] = {
+				enabled = enabled,
+				remarks = remarks,
+				ip_addr = ip_addr,
+				client_mac = client_mac,
+				policy_group = policy_group
+			}
+		end
+	end
+
+	uci:delete_all("shadowsocksr", "clash_client_group")
+	for _, row in ipairs(rows) do
+		local rid = uci:add("shadowsocksr", "clash_client_group")
+		if rid then
+			uci:set("shadowsocksr", rid, "enabled", row.enabled)
+			uci:set("shadowsocksr", rid, "remarks", row.remarks)
+			uci:set("shadowsocksr", rid, "ip_addr", row.ip_addr)
+			uci:set("shadowsocksr", rid, "client_mac", row.client_mac)
+			uci:set("shadowsocksr", rid, "policy_group", row.policy_group)
+		end
+	end
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
+
+	local active_sid = resolve_active_clash_sid(sid)
+	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
+	local reapplied = false
+	if sid and sid ~= "" and uci:get("shadowsocksr", sid) == "servers"
+		and uci:get("shadowsocksr", sid, "type") == "clash"
+		and current_sid == sid then
+		luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+		reapplied = true
+	end
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		success = true,
+		count = #rows,
+		reapplied = reapplied,
+		rules = read_clash_client_rules()
+	})
+end
+
+function clash_client_rule_clear()
+	local sid = luci.http.formvalue("sid")
+
+	uci:delete_all("shadowsocksr", "clash_client_group")
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
+
+	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
+	local reapplied = false
+	if sid and sid ~= "" and uci:get("shadowsocksr", sid) == "servers"
+		and uci:get("shadowsocksr", sid, "type") == "clash"
+		and current_sid == sid then
+		luci.sys.call("/etc/init.d/shadowsocksr restart >/dev/null 2>&1 &")
+		reapplied = true
+	end
+
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({
+		success = true,
+		reapplied = reapplied,
+		rules = {}
 	})
 end
 

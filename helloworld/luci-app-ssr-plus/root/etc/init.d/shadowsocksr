@@ -360,6 +360,14 @@ prepare_clash_runtime_config() {
 	if [ "$stripped_script_rules" -gt 0 ] 2>/dev/null; then
 		echolog "Clash YAML 兼容修复：共移除 $stripped_script_rules 条不兼容的 SCRIPT 规则。"
 	fi
+	local client_policy_stats=""
+	local client_rules=0
+	client_policy_stats="$(/usr/bin/lua "$CLASH_YAML_HELPER" append_client_policy_rules "$runtime_file" 2>/dev/null)" || true
+	client_rules="$(printf '%s\n' "$client_policy_stats" | sed -n 's/.*client_rules=\([0-9][0-9]*\).*/\1/p' | tail -n1)"
+	[ -n "$client_rules" ] || client_rules=0
+	if [ "$client_rules" -gt 0 ] 2>/dev/null; then
+		echolog "Clash YAML 自定义客户端代理规则已注入：$client_rules 条。"
+	fi
 
 	# Persist Mihomo's store-selected cache across service restarts.
 	if [ -f "$workdir/cache.db" ] && [ ! -L "$workdir/cache.db" ]; then
