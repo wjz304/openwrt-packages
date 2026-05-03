@@ -69,6 +69,7 @@ end
 			const tlss = document.getElementsByClassName("tls");
 			const types = document.getElementsByClassName("type");
 			const protos = document.getElementsByClassName("proto");
+			const realities = document.getElementsByClassName("reality");
 			const startText = '<%:Start Detection%>';
 			const stopText = '<%:Stop Detection%>';
 			const maxConcurrent = 10;
@@ -152,6 +153,7 @@ end
 						const tls = tlss[index];
 						const type = types[index];
 						const proto = protos[index];
+						const reality = realities[index];
 						if (!dom || !port || runId !== activeRunId) {
 							res();
 							return;
@@ -174,7 +176,8 @@ end
 							tlsHost: tlsHost ? tlsHost.getAttribute("hint") : "",
 							tls: tls.getAttribute("hint"),
 							type: type.getAttribute("hint"),
-							proto: proto.getAttribute("hint")
+							proto: proto.getAttribute("hint"),
+							reality: reality ? reality.getAttribute("hint") : ""
 						},
 					(x, result) => {
 						if (runId !== activeRunId) {

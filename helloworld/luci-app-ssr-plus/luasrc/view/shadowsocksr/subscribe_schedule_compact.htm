@@ -30,6 +30,10 @@
 <script type="text/javascript">
 //<![CDATA[
 function ssrCompactSubscribeSchedule() {
+	function getSelectByName(suffix) {
+		return document.querySelector('select[name$=".' + suffix + '"], input[name$=".' + suffix + '"]');
+	}
+
 	function shortLabel(row, fallback) {
 		if (!row) return fallback;
 		var label = row.querySelector('.cbi-value-title');
@@ -40,14 +44,16 @@ function ssrCompactSubscribeSchedule() {
 	}
 
 	function getRowByName(suffix) {
-		var el = document.querySelector('select[name$=".' + suffix + '"]');
+		var el = getSelectByName(suffix);
 		return el ? el.closest('.cbi-value') : null;
 	}
 
 	function compactScheduleRow() {
+		var modeRow = getRowByName('config_auto_update_mode');
 		var weekRow = getRowByName('auto_update_week_time');
 		var hourRow = getRowByName('auto_update_day_time');
 		var minRow = getRowByName('auto_update_min_time');
+		var intervalRow = getRowByName('config_update_interval');
 		if (!weekRow || !hourRow || !minRow) return;
 
 		var weekField = weekRow.querySelector('.cbi-value-field');
@@ -87,6 +93,34 @@ function ssrCompactSubscribeSchedule() {
 
 		hourRow.classList.add('ssr-schedule-hidden');
 		minRow.classList.add('ssr-schedule-hidden');
+
+		function applyModeVisibility() {
+			var modeEl = getSelectByName('config_auto_update_mode');
+			var loopMode = modeEl && modeEl.value === '1';
+
+			if (weekRow) {
+				weekRow.classList.toggle('ssr-schedule-hidden', loopMode);
+			}
+			if (hourRow) {
+				hourRow.classList.add('ssr-schedule-hidden');
+			}
+			if (minRow) {
+				minRow.classList.add('ssr-schedule-hidden');
+			}
+			if (intervalRow) {
+				intervalRow.classList.toggle('ssr-schedule-hidden', !loopMode);
+			}
+		}
+
+		if (modeRow) {
+			var modeSelect = modeRow.querySelector('select');
+			if (modeSelect && !modeSelect.dataset.ssrLoopBound) {
+				modeSelect.dataset.ssrLoopBound = '1';
+				modeSelect.addEventListener('change', applyModeVisibility);
+			}
+		}
+
+		applyModeVisibility();
 	}
 
 	compactScheduleRow();

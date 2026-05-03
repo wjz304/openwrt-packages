@@ -86,6 +86,59 @@ local function is_ipv6_address(addr)
 	return addr ~= "" and addr:find(":", 1, true) ~= nil
 end
 
+local function is_local_target(addr)
+	addr = tostring(addr or ""):lower()
+	if addr == "" then
+		return false
+	end
+
+	if addr == "localhost" or addr == "::1" or addr:match("%.local$") then
+		return true
+	end
+
+	if is_ipv6_address(addr) then
+		return addr:match("^fe[89ab]") ~= nil or addr:match("^fc") ~= nil or addr:match("^fd") ~= nil
+	end
+
+	local o1, o2 = addr:match("^(%d+)%.(%d+)%.")
+	o1 = tonumber(o1)
+	o2 = tonumber(o2)
+	if not o1 or not o2 then
+		return false
+	end
+
+	return o1 == 10
+		or o1 == 127
+		or (o1 == 169 and o2 == 254)
+		or (o1 == 172 and o2 >= 16 and o2 <= 31)
+		or (o1 == 192 and o2 == 168)
+end
+
+local function detect_tcp_connect_ms(domain, port)
+	if not domain or domain == "" or not port or port <= 0 then
+		return nil
+	end
+
+	local ip_version_arg = is_ipv6_address(domain) and "-6 " or ""
+	local cmd = string.format(
+		"nping %s--tcp-connect -q -c 1 -p %d %s 2>/dev/null",
+		ip_version_arg,
+		port,
+		luci.util.shellquote(domain)
+	)
+	local result = luci.sys.exec(cmd) or ""
+	local success = tonumber(result:match("Successful connections:%s*([0-9]+)"))
+	if success and success > 0 then
+		local avg_rtt = tonumber(result:match("Avg rtt:%s*([0-9.]+)ms"))
+		if avg_rtt and avg_rtt > 0 and avg_rtt < 1 and not is_local_target(domain) then
+			return nil
+		end
+		return normalize_ping_ms(avg_rtt)
+	end
+
+	return nil
+end
+
 local function get_clash_secret(sid)
 	return sid .. "_ssrplus_clash"
 end
@@ -369,7 +422,9 @@ end
 
 function subscribe()
 	nixio.fs.remove(SERVER_DETECT_CACHE)
-	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua >>/var/log/ssrplus.log 2>&1")
+	local sid = luci.http.formvalue("sid") or ""
+	local subscribe_arg = sid ~= "" and (" " .. luci.util.shellquote(sid)) or ""
+	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua" .. subscribe_arg .. " >>/var/log/ssrplus.log 2>&1")
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({ret = ret})
 end
@@ -620,12 +675,27 @@ function act_ping()
 	local tls = luci.http.formvalue("tls")
 	local type = (luci.http.formvalue("type") or ""):lower()
 	local proto = (luci.http.formvalue("proto") or ""):lower()
+	local reality = luci.http.formvalue("reality")
 	local sid = luci.http.formvalue("sid")
 	e.index = luci.http.formvalue("index")
 
+	if sid and sid ~= "" and uci:get("shadowsocksr", sid) == "servers" then
+		domain = uci:get("shadowsocksr", sid, "server") or domain
+		port = tonumber(uci:get("shadowsocksr", sid, "server_port") or port or 0)
+		transport = (uci:get("shadowsocksr", sid, "transport") or transport or ""):lower()
+		wsPath = uci:get("shadowsocksr", sid, "ws_path") or wsPath
+		host = uci:get("shadowsocksr", sid, "ws_host") or host
+		tls_host = uci:get("shadowsocksr", sid, "tls_host") or tls_host
+		tls = uci:get("shadowsocksr", sid, "tls") or tls
+		type = (uci:get("shadowsocksr", sid, "type") or type or ""):lower()
+		proto = (uci:get("shadowsocksr", sid, "v2ray_protocol") or proto or ""):lower()
+		reality = uci:get("shadowsocksr", sid, "reality") or reality
+	end
+
 	local is_ip = domain and domain:match("^%d+%.%d+%.%d+%.%d+$")
 	local probe_host = (tls_host ~= "" and tls_host) or (host ~= "" and host) or domain
-	local prefers_handshake_latency = (type == "v2ray")
+	local is_reality = (reality == "1" or reality == "true")
+	local prefers_handshake_latency = (type == "v2ray") and not is_reality
 
 	-- 临时放行防火墙逻辑
 	local use_nft = use_fw4_backend()
@@ -699,7 +769,7 @@ function act_ping()
 			--luci.sys.exec(string.format("echo 'Node %s (ws) failed deep test, using TCP fallback' >> /tmp/ping.log", domain))
 		end
 		e.socket = success
-		-- 延迟：优先 ping，再 curl，最后 tcping
+		-- 延迟：优先 ping，再 curl，最后 nping tcp-connect
 		if not e.ping then
 			local ping_time = tonumber(string.match(result, "time_connect=(%d+.%d%d%d)"))
 			local appconnect_time = tonumber(string.match(result, "time_appconnect=(%d+.%d%d%d)"))
@@ -708,9 +778,7 @@ function act_ping()
 			elseif ping_time and ping_time > 0 then
 				e.ping = normalize_ping_ms(ping_time, 1000)
 			else
-				local tcping_cmd = string.format("tcping -q -c 1 -t 1 -p %d %s 2>/dev/null | grep -oE 'time=[0-9.]+ ?ms?' | head -1 | sed -E 's/time=([0-9.]+).*/\\1/'", port, domain)
-				local tcping_res = tonumber(luci.sys.exec(tcping_cmd))
-				e.ping = normalize_ping_ms(tcping_res) or 0
+				e.ping = detect_tcp_connect_ms(domain, port) or 0
 			end
 		end
 	else
@@ -727,12 +795,10 @@ function act_ping()
 			e.ping = detect_tls_handshake_ms(domain, port, "", probe_host, domain, false)
 		end
 
-		-- 延迟：优先真实握手，再 tcping -> ping -> nping(udp)
+		-- 延迟：优先真实握手，再 nping tcp-connect -> ping -> nping(udp)
 		if not e.ping then
-			local tcping_cmd = string.format("tcping -q -c 1 -t 1 -p %d %s 2>/dev/null | grep -oE 'time=[0-9.]+ ?ms?' | head -1 | sed -E 's/time=([0-9.]+).*/\\1/'", port, domain)
-			local tcping_res = tonumber(luci.sys.exec(tcping_cmd))
-			if tcping_res and tcping_res >= 1 then
-				e.ping = normalize_ping_ms(tcping_res)
+			if not is_reality then
+				e.ping = detect_tcp_connect_ms(domain, port)
 			end
 		end
 		if not e.ping then

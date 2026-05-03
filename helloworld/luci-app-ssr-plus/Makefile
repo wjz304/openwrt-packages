@@ -4,7 +4,7 @@ LUCI_TITLE:=luci-app-ssr-plus
 LUCI_PKGARCH:=all
 PKG_NAME:=luci-app-ssr-plus
 PKG_VERSION:=192
-PKG_RELEASE:=1
+PKG_RELEASE:=5
 
 PKG_CONFIG_DEPENDS:= \
 	CONFIG_PACKAGE_$(PKG_NAME)_Iptables_Transparent_Proxy \
@@ -34,15 +34,12 @@ PKG_CONFIG_DEPENDS:= \
 LUCI_TITLE:=SS/SSR/V2Ray/Trojan/NaiveProxy/Tuic/ShadowTLS/Hysteria/Socks5/Clash LuCI interface
 LUCI_PKGARCH:=all
 LUCI_DEPENDS:= \
-	+coreutils +coreutils-base64 +dns2tcp +dnsmasq-full \
-	+jq +ip-full +lua +lua-neturl +libuci-lua +microsocks +ipt2socks \
-	+tcping +resolveip +shadowsocksr-libev-ssr-check +curl +nping +unzip \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_Http_Proxy:3proxy \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_Xray:xray-core \
+	+libuci-lua +lua +luci-compat +coreutils +coreutils-base64 +dns2tcp +dnsmasq-full \
+	+jq +ip-full +lua-neturl +libuci-lua +microsocks +ipt2socks \
+	+resolveip +shadowsocksr-libev-ssr-check +curl +nping +unzip \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_ChinaDNS_NG:chinadns-ng \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_MosDNS:mosdns \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria:hysteria \
-	+PACKAGE_$(PKG_NAME)_INCLUDE_Mihomo:mihomo \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS:shadow-tls \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_Kcptun:kcptun-client \
 	+PACKAGE_$(PKG_NAME)_INCLUDE_NaiveProxy:naiveproxy \
@@ -59,7 +56,6 @@ LUCI_DEPENDS:= \
 
 
 define Package/$(PKG_NAME)/config
-select PACKAGE_luci-lua-runtime if PACKAGE_$(PKG_NAME)
 
 choice
 	prompt "Transparent Proxy Backend"
@@ -130,6 +126,7 @@ choice
 
 	config PACKAGE_$(PKG_NAME)_INCLUDE_Xray
 	bool "Xray-core"
+	select PACKAGE_xray-core
 endchoice
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_ChinaDNS_NG
@@ -147,16 +144,21 @@ config PACKAGE_$(PKG_NAME)_INCLUDE_Hysteria
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Http_Proxy
 	bool "Include HTTP Proxy"
+	select PACKAGE_3proxy
 	default n
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Mihomo
 	bool "Include Mihomo (Clash Support)"
 	select PACKAGE_mihomo
 	select PACKAGE_lyaml
-	select PACKAGE_v2ray-geoip
-	select PACKAGE_v2ray-geosite
 	depends on aarch64||arm||i386||loongarch64||riscv64||x86_64
 	default y if aarch64||arm||i386||loongarch64||riscv64||x86_64
+
+config PACKAGE_$(PKG_NAME)_INCLUDE_GeoData
+	bool "Include GeoData (GeoIP and GeoSite)"
+	select PACKAGE_v2ray-geoip
+	select PACKAGE_v2ray-geosite
+	default y if i386||x86_64
 
 config PACKAGE_$(PKG_NAME)_INCLUDE_Shadow_TLS
 	bool "Include Shadow-TLS"

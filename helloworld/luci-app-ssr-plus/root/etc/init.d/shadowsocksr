@@ -452,7 +452,13 @@ echolog() {
 add_cron() {
 	touch $CRON_FILE
 	sed -i '/ssrplus.log/d' $CRON_FILE
-	[ $(uci_get_by_type server_subscribe auto_update 0) -eq 1 ] && echo "$(uci_get_by_type server_subscribe auto_update_min_time) $(uci_get_by_type server_subscribe auto_update_day_time) * * $(uci_get_by_type server_subscribe auto_update_week_time) /usr/share/shadowsocksr/ssrplusupdate.sh >$LOG_FILE" >>$CRON_FILE
+	if [ "$(uci_get_by_type server_subscribe auto_update 0)" -eq 1 ]; then
+		if [ "$(uci_get_by_type server_subscribe config_auto_update_mode 0)" = "1" ]; then
+			echo "* * * * * /usr/share/shadowsocksr/ssrplusupdate.sh loop >>$LOG_FILE 2>&1" >>$CRON_FILE
+		else
+			echo "$(uci_get_by_type server_subscribe auto_update_min_time) $(uci_get_by_type server_subscribe auto_update_day_time) * * $(uci_get_by_type server_subscribe auto_update_week_time) /usr/share/shadowsocksr/ssrplusupdate.sh >$LOG_FILE" >>$CRON_FILE
+		fi
+	fi
 	crontab $CRON_FILE
 }
 
