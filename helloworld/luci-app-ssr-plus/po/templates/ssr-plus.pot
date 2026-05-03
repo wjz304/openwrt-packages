@@ -661,10 +661,6 @@ msgstr ""
 msgid "Disable TCP No_delay"
 msgstr ""
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:149
-msgid "Dnsproxy Parse List"
-msgstr ""
-
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/backup_restore.htm:18
 msgid "Do Reset"
 msgstr ""
@@ -2044,10 +2040,6 @@ msgstr ""
 msgid "Socks5 User"
 msgstr ""
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:151
-msgid "Specifically for edit dnsproxy DNS parse files."
-msgstr ""
-
 #: applications/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua:61
 msgid "Status"
 msgstr ""
@@ -2403,11 +2395,6 @@ msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:129
 msgid "Use DNS2TCP query"
-msgstr ""
-
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:117
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:141
-msgid "Use DNSPROXY query and cache"
 msgstr ""
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:146

@@ -819,10 +819,6 @@ msgstr "关闭 SNI 服务器名称指示"
 msgid "Disable TCP No_delay"
 msgstr "禁用 TCP 无延迟"
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:149
-msgid "Dnsproxy Parse List"
-msgstr "DNSPROXY 解析列表"
-
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/backup_restore.htm:18
 msgid "Do Reset"
 msgstr "执行重置"
@@ -2206,10 +2202,6 @@ msgstr "Socks5 密码"
 msgid "Socks5 User"
 msgstr "Socks5 用户名"
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:151
-msgid "Specifically for edit dnsproxy DNS parse files."
-msgstr "专门用于编辑 DNSPROXY 的 DNS 解析文件。"
-
 #: applications/luci-app-ssr-plus/luasrc/controller/shadowsocksr.lua:61
 msgid "Status"
 msgstr "状态"
@@ -2232,7 +2224,7 @@ msgstr "订阅节点关键字保留检查"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:235
 msgid "Subscribe URL"
-msgstr "SS/SSR/V2/TROJAN/HY2/TUIC 订阅 URL"
+msgstr "订阅 URL (支持SS/SSR/V2/TROJAN/HY2/TUIC/CLASH等)"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:304
 msgid "Subscribe new add server default Auto-Switch on"
@@ -2562,11 +2554,6 @@ msgstr "使用 DNS2SOCKS-RUST 查询并缓存"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:129
 msgid "Use DNS2TCP query"
 msgstr "使用 DNS2TCP 查询"
-
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:117
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:141
-msgid "Use DNSPROXY query and cache"
-msgstr "使用 DNSPROXY 查询并缓存"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:146
 msgid "Use Local DNS Service listen port 5335"
