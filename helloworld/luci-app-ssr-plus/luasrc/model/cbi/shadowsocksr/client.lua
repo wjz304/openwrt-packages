@@ -124,9 +124,6 @@ end
 if is_finded("mosdns") then
 	o:value("4", translate("Use MosDNS query"))
 end
-if is_finded("dnsproxy") then
-	o:value("5", translate("Use DNSPROXY query and cache"))
-end
 if is_finded("chinadns-ng") then
 	o:value("6", translate("Use ChinaDNS-NG query and cache"))
 end
@@ -169,55 +166,6 @@ o:depends("pdnsd_enable", "7")
 o.rmempty = false
 o.default = "1"
 
-if is_finded("dnsproxy") then
-	o = s:option(ListValue, "parse_method", translate("Select DNS parse Mode"))
-	o.description = translate(
-    	"<ul>" ..
-    	"<li>" .. translate("When use DNS list file, please ensure list file exists and is formatted correctly.") .. "</li>" ..
-    	"<li>" .. translate("Tips: Dnsproxy DNS Parse List Path:") ..
-    	" <a href='http://" .. lan_ip .. "/cgi-bin/luci/admin/services/shadowsocksr/control' target='_blank'>" ..
-    	translate("Click here to view or manage the DNS list file") .. "</a>" .. "</li>" ..
-    	"</ul>"
-	)
-	o:value("single_dns", translate("Set Single DNS"))
-	o:value("parse_file", translate("Use DNS List File"))
-	o:depends("pdnsd_enable", "5")
-	o.rmempty = true
-	o.default = "single_dns"
-
-	o = s:option(Value, "dnsproxy_tunnel_forward", translate("Anti-pollution DNS Server"))
-	o:value("sdns://AgUAAAAAAAAABzguOC40LjQgsKKKE4EwvtIbNjGjagI2607EdKSVHowYZtyvD9iPrkkHOC44LjQuNAovZG5zLXF1ZXJ5", translate("Google DNSCrypt SDNS"))
-	o:value("sdns://AgcAAAAAAAAAACC2vD25TAYM7EnyCH8Xw1-0g5OccnTsGH9vQUUH0njRtAxkbnMudHduaWMudHcKL2Rucy1xdWVyeQ", translate("TWNIC-101 DNSCrypt SDNS"))
-	o:value("sdns://AgcAAAAAAAAADzE4NS4yMjIuMjIyLjIyMiAOp5Svj-oV-Fz-65-8H2VKHLKJ0egmfEgrdPeAQlUFFA8xODUuMjIyLjIyMi4yMjIKL2Rucy1xdWVyeQ", translate("dns.sb DNSCrypt SDNS"))
-	o:value("sdns://AgMAAAAAAAAADTE0OS4xMTIuMTEyLjkgsBkgdEu7dsmrBT4B4Ht-BQ5HPSD3n3vqQ1-v5DydJC8SZG5zOS5xdWFkOS5uZXQ6NDQzCi9kbnMtcXVlcnk", translate("Quad9 DNSCrypt SDNS"))
-	o:value("sdns://AQMAAAAAAAAAETk0LjE0MC4xNC4xNDo1NDQzINErR_JS3PLCu_iZEIbq95zkSV2LFsigxDIuUso_OQhzIjIuZG5zY3J5cHQuZGVmYXVsdC5uczEuYWRndWFyZC5jb20", translate("AdGuard DNSCrypt SDNS"))
-	o:value("sdns://AgcAAAAAAAAABzEuMC4wLjGgENk8mGSlIfMGXMOlIlCcKvq7AVgcrZxtjon911-ep0cg63Ul-I8NlFj4GplQGb_TTLiczclX57DvMV8Q-JdjgRgSZG5zLmNsb3VkZmxhcmUuY29tCi9kbnMtcXVlcnk", translate("Cloudflare DNSCrypt SDNS"))
-	o:value("sdns://AgcAAAAAAAAADjEwNC4xNi4yNDkuMjQ5ABJjbG91ZGZsYXJlLWRucy5jb20KL2Rucy1xdWVyeQ", translate("cloudflare-dns.com DNSCrypt SDNS"))
-	o:depends("parse_method", "single_dns")
-	o.description = translate("Custom DNS Server (support: IP:Port or tls://IP:Port or https://IP/dns-query and other format).")
-
-	o = s:option(ListValue, "upstreams_logic_mode", translate("Defines the upstreams logic mode"))
-	o.description = translate(
-    	"<ul>" ..
-    	"<li>" .. translate("Defines the upstreams logic mode, possible values: load_balance, parallel, fastest_addr (default: load_balance).") .. "</li>" ..
-    	"<li>" .. translate("When two or more DNS servers are deployed, enable this function.") .. "</li>" ..
-    	"</ul>"
-	)
-	o:value("load_balance", translate("load_balance"))
-	o:value("parallel", translate("parallel"))
-	o:value("fastest_addr", translate("fastest_addr"))
-	o:depends("parse_method", "parse_file")
-	o.rmempty = true
-	o.default = "load_balance"
-
-	o = s:option(Flag, "dnsproxy_ipv6", translate("Disable IPv6 query mode"))
-	o.description = translate("When disabled, all AAAA requests are not resolved.")
-	o:depends("parse_method", "single_dns")
-	o:depends("parse_method", "parse_file")
-	o.rmempty = false
-	o.default = "1"
-end
-
 if is_finded("chinadns-ng") then
 	o = s:option(Value, "chinadns_ng_tunnel_forward", translate("Anti-pollution DNS Server"))
 	o:value("8.8.4.4:53", translate("Google Public DNS (8.8.4.4)"))
@@ -258,7 +206,6 @@ if is_finded("chinadns-ng") then
 	o:value("123.125.81.6:53", translate("360 Security DNS (China Unicom) (123.125.81.6)"))
 	o:value("1.2.4.8:53", translate("CNNIC SDNS (1.2.4.8)"))
 	o:depends({pdnsd_enable = "1", run_mode = "router"})
-	o:depends({pdnsd_enable = "5", run_mode = "router"})
 	o:depends({pdnsd_enable = "6", run_mode = "router"})
 	o.description = translate("Custom DNS Server format as IP:PORT (default: disabled)")
 	o.validate = function(self, value, section)

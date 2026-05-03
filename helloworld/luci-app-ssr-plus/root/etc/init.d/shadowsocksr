@@ -150,8 +150,6 @@ supports_builtin_dns() {
 get_builtin_dns_fallback_mode() {
 	if is_finded "dns2tcp"; then
 		echo "1"
-	elif is_finded "dnsproxy"; then
-		echo "5"
 	elif is_finded "chinadns-ng"; then
 		echo "6"
 	elif is_finded "mosdns"; then
@@ -539,7 +537,7 @@ check_run_environment() {
 	USE_TABLES=""
 
 	if [ "$HAS_FW4" -eq 1 ]; then
-		echolog "提示：检测到 fw4，优先使用 nftables..."
+		echolog "提示：正在使用 Firewall4 / Nftables 模式"
 		if [ "$DNSMASQ_NFTSET" -eq 1 ] && [ "$HAS_NFT" -eq 1 ]; then
 			USE_TABLES="nftables"
 		else
@@ -548,7 +546,7 @@ check_run_environment() {
 	fi
 
 	if [ -z "$USE_TABLES" ] && [ "$HAS_FW3" -eq 1 ]; then
-		echolog "提示：未启用 fw4，回退到 fw3/iptables..."
+		echolog "提示：正在使用 Firewall3 / Iptables 模式"
 		if [ "$HAS_IPSET" -eq 1 ] && [ "$HAS_IPT" -eq 1 ] && [ "$DNSMASQ_IPSET" -eq 1 ]; then
 			USE_TABLES="iptables"
 		else
@@ -642,10 +640,15 @@ add_dns_into_ipset() {
 start_dns() {
 	local ssrplus_dns="$(uci_get_by_type global pdnsd_enable 0)"
 	local global_server_type="$(uci_get_by_name "$GLOBAL_SERVER" type)"
-	local dnsproxy_dnsserver="$(uci_get_by_type global parse_method)"
 	local builtin_dns_enabled=0
-	if [ -n "$dnsproxy_dnsserver" ] && [ "$dnsproxy_dnsserver" != "parse_file" ]; then
-		dnsserver="$(uci_get_by_type global dnsproxy_tunnel_forward 8.8.4.4:53)"
+	if [ "$ssrplus_dns" = "5" ]; then
+		ssrplus_dns="$(get_builtin_dns_fallback_mode)"
+		if [ "$ssrplus_dns" = "0" ]; then
+			echolog "提示：旧版 DNSPROXY 模式已移除，且当前无可用 DNS helper，继续使用本地 5335 模式。"
+		else
+			echolog "提示：旧版 DNSPROXY 模式已移除，自动回退到可用 DNS helper 模式($ssrplus_dns)。"
+			uci_set_by_type global pdnsd_enable "$ssrplus_dns"
+		fi
 	elif [ -n "$ssrplus_dns" ] && [ "$ssrplus_dns" = "6" ]; then
 		dnsserver="$(uci_get_by_type global chinadns_ng_tunnel_forward 8.8.4.4:53)"
 	else
@@ -700,65 +703,6 @@ start_dns() {
 			fi
 			ln_start_bin $(first_type mosdns) mosdns start -c $TMP_PATH/mosdns-config.yaml
 			pdnsd_enable_flag=4
-			;;
-		5)
-			dnsproxy_ipv6="$(uci_get_by_type global dnsproxy_ipv6)"
-			if [ "$dnsproxy_ipv6" -eq "1" ]; then
-				disabled_ipv6="--ipv6-disabled"
-			fi
-			if [ "$dnsproxy_dnsserver" != "parse_file" ]; then
-				ln_start_bin $(first_type dnsproxy) dnsproxy -l 127.0.0.1 -p $tmp_dns_port  -p $dns_port -u $dnsserver $disabled_ipv6 --cache --cache-min-ttl=3600
-			else
-				dnsproxy_dnsserver_file="$TMP_PATH/dnsproxy_dns.list"
-				cleaned_file="$TMP_PATH/cleaned_dns.list"
-				temp_file="$TMP_PATH/temp_dns.list"
-				> "$cleaned_file"
-				# 清理输入文件并去重
-				while IFS= read -r line || [ -n "$line" ]; do
-				    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
-					[ -z "$line" ] && continue
-					echo "$line" | grep -qE '^#' && continue
-					echo "$line" >> "$cleaned_file"
-				done < "/etc/ssrplus/dnsproxy_dns.list"
-				# 获取清理后文件的MD5
-				cleaned_md5=$(md5sum "$cleaned_file" | awk '{print $1}')
-				if [ ! -f "$dnsproxy_dnsserver_file" ]; then
-				    cp "$cleaned_file" "$dnsproxy_dnsserver_file"
-				else
-				    target_md5=$(md5sum "$dnsproxy_dnsserver_file" | awk '{print $1}')
-					if [ "$cleaned_md5" != "$target_md5" ]; then
-					    > "$temp_file"
-					    # 保留目标文件中也存在于清理文件的记录（去重）
-					    while IFS= read -r line; do
-						    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
-						    if grep -qixF "$line" "$cleaned_file" && ! grep -qixF "$line" "$temp_file"; then
-							    echo "$line" >> "$temp_file"
-						    fi
-						done < "$dnsproxy_dnsserver_file"
-						# 添加清理文件中有但目标文件没有的记录（去重）
-						while IFS= read -r line; do
-						    line=$(echo "$line" | sed -E 's/^[ \t\r]+//; s/[ \t\r]+$//')
-							if ! grep -qixF "$line" "$temp_file"; then
-							    echo "$line" >> "$temp_file"
-							fi
-						done < "$cleaned_file"
-						temp_md5=$(md5sum "$temp_file" | awk '{print $1}')
-						if [ "$temp_md5" != "$target_md5" ]; then
-						    mv "$temp_file" "$dnsproxy_dnsserver_file"
-						else
-						    rm -f "$temp_file"
-						fi
-					fi
-				fi
-				rm -f "$cleaned_file"
-
-				if [ -n "$dnsproxy_dnsserver_file" ] && [ -s "$dnsproxy_dnsserver_file" ]; then
-					local upstreams_logic_mode="$(uci_get_by_type global upstreams_logic_mode)"
-					ln_start_bin $(first_type dnsproxy) dnsproxy -l 127.0.0.1 -p $tmp_dns_port  -p $dns_port -u $dnsproxy_dnsserver_file $disabled_ipv6 --cache --cache-min-ttl=3600 --upstream-mode=$upstreams_logic_mode
-				fi
-			fi
-			echolog "DNSPROXY query and cache Started!"
-			pdnsd_enable_flag=5
 			;;
 		6)
 			local chinadns_ng_proto="$(uci_get_by_type global chinadns_ng_proto)"
