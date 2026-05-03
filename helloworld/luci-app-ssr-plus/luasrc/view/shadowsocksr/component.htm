@@ -8,6 +8,10 @@
 		mihomo: {
 			label: '<%:Mihomo%>',
 			help: '<%:The online upgrade only tracks the latest stable Mihomo release and downloads the matching linux archive for the current ARCH from the official GitHub release page.%>'
+		},
+		naiveproxy: {
+			label: '<%:NaiveProxy%>',
+			help: '<%:The online upgrade tracks the latest NaiveProxy release and prefers OpenWrt static archives matching the current ARCH before falling back to other release assets.%>'
 		}
 	};
 
@@ -34,11 +38,13 @@
 		'Matching release asset not found': '<%:Matching release asset not found%>',
 		'Missing unzip support': '<%:Missing unzip support%>',
 		'Missing gzip support': '<%:Missing gzip support%>',
+		'Missing xz support': '<%:Missing xz support%>',
 		'Failed to create temp directory': '<%:Failed to create temp directory%>',
 		'Download failed': '<%:Download failed%>',
 		'Extract failed': '<%:Extract failed%>',
 		'xray binary not found in archive': '<%:xray binary not found in archive%>',
 		'mihomo binary not found in archive': '<%:mihomo binary not found in archive%>',
+		'naive binary not found in archive': '<%:naive binary not found in archive%>',
 		'Install failed': '<%:Install failed%>',
 		'Installed binary failed to run': '<%:Installed binary failed to run%>'
 	};
@@ -387,6 +393,7 @@
 							<select id="component-selector" class="cbi-input-select component-selector" onchange="onComponentChange()">
 								<option value="xray"><%:Xray-core%></option>
 								<option value="mihomo"><%:Mihomo%></option>
+								<option value="naiveproxy"><%:NaiveProxy%></option>
 							</select>
 						</div>
 					</div>

@@ -323,6 +323,7 @@ if upload_errmessage then
 elseif upload_message then
 	m.message = upload_message
 end
+
 local style_section = m:section(SimpleSection)
 style_section.template = "shadowsocksr/servers_subscribe_url_style"
 
@@ -422,8 +423,12 @@ preserve_when_hidden(o, "subscribe_advanced", "1")
 o = s:option(Button, "update_Sub", translate("Save Subscribe Settings"))
 o.inputstyle = "reload"
 o.description = translate("Save current subscribe settings")
-o.write = function(self, section)
-	self.map.ssr_update_sub_requested = true
+o.render = function(self, section, scope)
+	self.inputstyle = "reload"
+	self.title = translate("Save Subscribe Settings")
+	self.inputtitle = translate("Save Subscribe Settings")
+	self.template = "shadowsocksr/subscribe_save_button"
+	Button.render(self, section, scope)
 end
 
 o = s:option(Button, "subscribe", translate("Update All Subscribe Servers"))
@@ -608,14 +613,6 @@ end
 m:append(cbi.Template("shadowsocksr/server_list"))
 
 m.commit_handler = function(self)
-	if self.ssr_update_sub_requested then
-		luci.sys.exec("rm -rf /tmp/sub_md5_*")
-		for _, config in ipairs(self.parsechain or {}) do
-			self.uci:commit(config)
-		end
-		return
-	end
-
 	if not self.ssr_subscribe_requested then
 		return
 	end

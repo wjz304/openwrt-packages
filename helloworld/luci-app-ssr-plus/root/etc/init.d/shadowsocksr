@@ -543,7 +543,6 @@ check_run_environment() {
 	USE_TABLES=""
 
 	if [ "$HAS_FW4" -eq 1 ]; then
-		echolog "提示：正在使用 Firewall4 / Nftables 模式"
 		if [ "$DNSMASQ_NFTSET" -eq 1 ] && [ "$HAS_NFT" -eq 1 ]; then
 			USE_TABLES="nftables"
 		else
@@ -552,7 +551,6 @@ check_run_environment() {
 	fi
 
 	if [ -z "$USE_TABLES" ] && [ "$HAS_FW3" -eq 1 ]; then
-		echolog "提示：正在使用 Firewall3 / Iptables 模式"
 		if [ "$HAS_IPSET" -eq 1 ] && [ "$HAS_IPT" -eq 1 ] && [ "$DNSMASQ_IPSET" -eq 1 ]; then
 			USE_TABLES="iptables"
 		else
