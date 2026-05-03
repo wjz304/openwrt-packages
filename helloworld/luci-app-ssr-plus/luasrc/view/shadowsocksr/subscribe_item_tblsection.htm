@@ -19,6 +19,29 @@ local function width(o)
 	return ""
 end
 -%>
+<script type="text/javascript">//<![CDATA[
+	window.ssrUpdateSubscribeItem = window.ssrUpdateSubscribeItem || function(btn) {
+		if (!btn) return false;
+
+		var sid = btn.getAttribute('data-sid') || '';
+		var title = btn.getAttribute('data-title') || '';
+		var original = btn.getAttribute('data-original-value') || btn.value || 'Update';
+
+		btn.disabled = true;
+		btn.value = '<%:Updating...%>';
+		window.ssrSubscribeRun = window.ssrSubscribeRun || function(_, done) {
+			if (done) done();
+		};
+		window.ssrSubscribeRun({
+			sid: sid,
+			title: title
+		}, function() {
+			btn.disabled = false;
+			btn.value = original;
+		});
+		return false;
+	};
+//]]></script>
 <div class="cbi-section cbi-tblsection" id="cbi-<%=self.config%>-<%=self.sectiontype%>">
 	<% if self.title and #self.title > 0 then -%>
 		<h3><%=self.title%></h3>
@@ -53,31 +76,20 @@ end
 					end
 				end
 				local alias = self.map:get(section, "alias") or string.format("Subscribe %s", section:sub(-4))
-				local safe_alias = tostring(alias):gsub("\\", "\\\\"):gsub("\"", "\\\"")
+				local update_title = "Subscribe: " .. tostring(alias)
 			-%>
 			<td class="td cbi-section-table-cell nowrap cbi-section-actions">
-				<script type="text/javascript">//<![CDATA[
-					function ssr_update_subscribe_item_<%=section%>(btn) {
-						if (!btn) return false;
-						btn.disabled = true;
-						btn.value = '<%:Updating...%>';
-						window.ssrSubscribeRun = window.ssrSubscribeRun || function(_, done) {
-							if (done) done();
-						};
-						window.ssrSubscribeRun({
-							sid: "<%=section%>",
-							title: "Subscribe: <%=safe_alias%>"
-						}, function() {
-							btn.disabled = false;
-							btn.value = '<%:Update%>';
-						});
-						return false;
-					}
-				//]]></script>
 				<div class="ssr-subscribe-actions">
 					<input class="btn cbi-button cbi-button-save" type="submit" value="<%:Save%>" />
 					<input class="btn cbi-button cbi-button-remove" type="submit" value="<%:Delete%>" onclick="this.form.cbi_state='del-section'; return true" name="cbi.rts.<%=self.config%>.<%=section%>" alt="<%:Delete%>" title="<%:Delete%>" />
-					<input type="button" class="btn cbi-button cbi-button-apply" value="<%:Update%>" onclick="return ssr_update_subscribe_item_<%=section%>(this)" />
+					<input
+						type="button"
+						class="btn cbi-button cbi-button-apply"
+						value="<%:Update%>"
+						data-original-value="<%:Update%>"
+						<%=attr("data-sid", section) .. attr("data-title", update_title)%>
+						onclick="return window.ssrUpdateSubscribeItem(this)"
+					/>
 				</div>
 			</td>
 		</tr>

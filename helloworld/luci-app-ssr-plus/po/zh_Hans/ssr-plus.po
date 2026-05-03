@@ -1935,6 +1935,9 @@ msgstr "正在更新，请稍候..."
 msgid "Reload YAML"
 msgstr "重载 YAML"
 
+msgid "Custom Client Proxies Rules"
+msgstr "自定义客户端代理规则"
+
 msgid "Reloading YAML..."
 msgstr "正在重载 YAML..."
 
@@ -1961,6 +1964,69 @@ msgstr "已清空默认状态！"
 
 msgid "Reset Defaults Failed!"
 msgstr "重置默认值失败！"
+
+msgid "No custom client proxy rules yet."
+msgstr "暂无自定义客户端代理规则。"
+
+msgid "Client"
+msgstr "客户端"
+
+msgid "Policy"
+msgstr "策略"
+
+msgid "Remarks"
+msgstr "备注"
+
+msgid "Saving..."
+msgstr "保存中..."
+
+msgid "Custom client proxy rules saved and applied."
+msgstr "自定义客户端代理规则已保存并生效。"
+
+msgid "Custom client proxy rules saved."
+msgstr "自定义客户端代理规则已保存。"
+
+msgid "Failed to save custom client proxy rules."
+msgstr "保存自定义客户端代理规则失败。"
+
+msgid "Define per-client Mihomo proxy targets. Rules are injected as SRC-IP-CIDR entries before the original Clash rules."
+msgstr "为每个客户端指定 Mihomo 代理目标。规则会以 SRC-IP-CIDR 形式注入到原始 Clash 规则之前。"
+
+msgid "Client supports manual IP or IP/CIDR input."
+msgstr "客户端支持手动输入 IP 或 IP/CIDR。"
+
+msgid "Export Client Rules"
+msgstr "批量导出客户端规则"
+
+msgid "Import Client Rules"
+msgstr "批量导入客户端规则"
+
+msgid "Client rules exported to CSV text."
+msgstr "客户端规则已导出为 CSV 文本。"
+
+msgid "Client rules imported from CSV text. Click Save to apply."
+msgstr "客户端规则已从 CSV 文本导入，请点击保存生效。"
+
+msgid "Client rules exported to CSV file."
+msgstr "客户端规则已导出为 CSV 文件。"
+
+msgid "Client rules imported from CSV file. Click Save to apply."
+msgstr "客户端规则已从 CSV 文件导入，请点击保存生效。"
+
+msgid "Clear All Rules"
+msgstr "清空所有规则"
+
+msgid "Clear all custom client proxy rules and restore empty state?"
+msgstr "清空所有自定义客户端代理规则，并恢复为空白状态吗？"
+
+msgid "All client proxy rules cleared and applied."
+msgstr "所有客户端代理规则已清空并生效。"
+
+msgid "All client proxy rules cleared."
+msgstr "所有客户端代理规则已清空。"
+
+msgid "Failed to clear all client proxy rules."
+msgstr "清空所有客户端代理规则失败。"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:134
 msgid "Regular update (Hour)"
