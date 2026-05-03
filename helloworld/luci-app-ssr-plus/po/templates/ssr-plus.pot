@@ -191,6 +191,15 @@ msgstr ""
 msgid "Unsupported component"
 msgstr ""
 
+msgid "Missing xz support"
+msgstr ""
+
+msgid "naive binary not found in archive"
+msgstr ""
+
+msgid "The online upgrade tracks the latest NaiveProxy release and prefers OpenWrt static archives matching the current ARCH before falling back to other release assets."
+msgstr ""
+
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:39
 msgid "Allow all except listed"
 msgstr ""
