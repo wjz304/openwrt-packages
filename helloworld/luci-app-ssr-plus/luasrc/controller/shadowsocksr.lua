@@ -14,6 +14,7 @@ local CLASH_API_PORT = "16756"
 local COMPONENT_HELPER = "/usr/share/shadowsocksr/update_components.sh"
 local SERVER_DETECT_CACHE = "/tmp/ssrplus_server_detect.json"
 local SERVER_DETECT_LOCK = "/tmp/ssrplus_server_detect.lock"
+local CLASH_RULES_DIR = "/etc/ssrplus/clash"
 local SUPPORTED_COMPONENTS = {
 	xray = true,
 	mihomo = true,
@@ -48,6 +49,108 @@ local function normalize_client_ip(value)
 	return ""
 end
 
+local function get_clash_client_rule_csv_path(sid)
+	sid = trim(sid)
+	if sid == "" then
+		return nil
+	end
+	return string.format("%s/%s.csv", CLASH_RULES_DIR, sid)
+end
+
+local function csv_escape(value)
+	value = tostring(value or "")
+	if value:find('[",\n\r]') then
+		return '"' .. value:gsub('"', '""') .. '"'
+	end
+	return value
+end
+
+local function parse_csv_line(line)
+	local cols = {}
+	local cur = ""
+	local in_quote = false
+	local i = 1
+
+	while i <= #line do
+		local ch = line:sub(i, i)
+		if ch == '"' then
+			if in_quote and line:sub(i + 1, i + 1) == '"' then
+				cur = cur .. '"'
+				i = i + 1
+			else
+				in_quote = not in_quote
+			end
+		elseif ch == "," and not in_quote then
+			cols[#cols + 1] = cur
+			cur = ""
+		else
+			cur = cur .. ch
+		end
+		i = i + 1
+	end
+
+	cols[#cols + 1] = cur
+	return cols
+end
+
+local function read_clash_client_rules_csv(sid)
+	local rules = {}
+	local csv_path = get_clash_client_rule_csv_path(sid)
+	if not csv_path or not nixio.fs.access(csv_path) then
+		return rules
+	end
+
+	local raw = nixio.fs.readfile(csv_path)
+	if not raw or raw == "" then
+		return rules
+	end
+
+	local first = true
+	for line in tostring(raw):gsub("\r", ""):gmatch("[^\n]+") do
+		local text = trim(line)
+		if text ~= "" then
+			if first and text:lower() == "enabled,client,policy,remarks,client_mac" then
+				first = false
+			else
+				local cols = parse_csv_line(line)
+				if #cols >= 4 then
+					rules[#rules + 1] = {
+						id = tostring(#rules + 1),
+						enabled = cols[1] == "1" or tostring(cols[1] or ""):lower() == "true",
+						ip_addr = trim(cols[2] or ""),
+						policy_group = trim(cols[3] or ""),
+						remarks = trim(cols[4] or ""),
+						client_mac = sanitize_mac(cols[5] or "")
+					}
+				end
+			end
+		end
+	end
+
+	return rules
+end
+
+local function write_clash_client_rules_csv(sid, rows)
+	local csv_path = get_clash_client_rule_csv_path(sid)
+	if not csv_path then
+		return false
+	end
+
+	nixio.fs.mkdirr(CLASH_RULES_DIR)
+	local lines = { "enabled,client,policy,remarks,client_mac" }
+	for _, row in ipairs(rows or {}) do
+		lines[#lines + 1] = table.concat({
+			row.enabled == "1" and "1" or "0",
+			csv_escape(row.ip_addr or ""),
+			csv_escape(row.policy_group or ""),
+			csv_escape(row.remarks or ""),
+			csv_escape(row.client_mac or "")
+		}, ",")
+	end
+
+	return nixio.fs.writefile(csv_path, table.concat(lines, "\n") .. "\n")
+end
+
 local function collect_lan_clients()
 	local clients = {}
 	local seen = {}
@@ -72,19 +175,8 @@ local function collect_lan_clients()
 	return clients
 end
 
-local function read_clash_client_rules()
-	local rules = {}
-	uci:foreach("shadowsocksr", "clash_client_group", function(section)
-		rules[#rules + 1] = {
-			id = section[".name"],
-			enabled = section.enabled == "1",
-			remarks = section.remarks or "",
-			ip_addr = section.ip_addr or "",
-			client_mac = section.client_mac or "",
-			policy_group = section.policy_group or ""
-		}
-	end)
-	return rules
+local function read_clash_client_rules(sid)
+	return read_clash_client_rules_csv(sid)
 end
 
 local function normalize_ping_ms(value, scale)
@@ -466,7 +558,6 @@ function index()
 	entry({"admin", "services", "shadowsocksr", "geo_local_status"}, call("geo_local_status")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "geo_status"}, call("geo_status")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "geo_upgrade"}, call("geo_upgrade")).leaf = true
-	entry({"admin", "services", "shadowsocksr", "save_subscribe_settings"}, call("save_subscribe_settings")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "checkport"}, call("check_port"))
 	entry({"admin", "services", "shadowsocksr", "log"}, form("shadowsocksr/log"), _("Log"), 80).leaf = true
 	entry({"admin", "services", "shadowsocksr", "get_log"}, call("get_log")).leaf = true
@@ -474,6 +565,7 @@ function index()
 	entry({"admin", "services", "shadowsocksr", "run"}, call("act_status"))
 	entry({"admin", "services", "shadowsocksr", "ping"}, call("act_ping"))
 	entry({"admin", "services", "shadowsocksr", "save_order"}, call("save_order")).leaf = true
+	entry({"admin", "services", "shadowsocksr", "toggle_subscribe_item_enabled"}, call("toggle_subscribe_item_enabled")).leaf = true
 	entry({"admin", "services", "shadowsocksr", "reset"}, call("act_reset"))
 	entry({"admin", "services", "shadowsocksr", "restart"}, call("act_restart"))
 	entry({"admin", "services", "shadowsocksr", "delete"}, call("act_delete"))
@@ -491,9 +583,7 @@ end
 
 function subscribe()
 	nixio.fs.remove(SERVER_DETECT_CACHE)
-	local sid = luci.http.formvalue("sid") or ""
-	local subscribe_arg = sid ~= "" and (" " .. luci.util.shellquote(sid)) or ""
-	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua" .. subscribe_arg .. " >>/var/log/ssrplus.log 2>&1")
+	local ret = luci.sys.call(": > /var/log/ssrplus.log && /usr/bin/lua /usr/share/shadowsocksr/subscribe.lua >>/var/log/ssrplus.log 2>&1")
 	luci.http.prepare_content("application/json")
 	luci.http.write_json({ret = ret})
 end
@@ -520,103 +610,23 @@ function save_order()
 	})
 end
 
-function save_subscribe_settings()
-	local redirect_url = luci.dispatcher.build_url("admin", "services", "shadowsocksr", "servers")
-	local http = luci.http
-	local util = luci.util
-	local subscribe_sid = uci:get_first("shadowsocksr", "server_subscribe")
-	local function form(name)
-		return http.formvalue(name)
-	end
-	local function sh_set(section, option, value)
-		return luci.sys.call(string.format(
-			"uci -q set shadowsocksr.%s.%s=%s",
-			section, option, util.shellquote(value)
-		)) == 0
-	end
-	local function sh_delete(section, option)
-		return luci.sys.call(string.format(
-			"uci -q delete shadowsocksr.%s.%s",
-			section, option
-		)) == 0
+function toggle_subscribe_item_enabled()
+	local sid = trim(luci.http.formvalue("sid"))
+	local enabled = luci.http.formvalue("enabled") == "1" and "1" or "0"
+
+	if sid == "" or uci:get("shadowsocksr", sid) ~= "server_subscribe_item" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({ ret = 0, error = "invalid_sid" })
+		return
 	end
 
-	if not subscribe_sid then
-		subscribe_sid = luci.util.trim(luci.sys.exec("uci -q add shadowsocksr server_subscribe 2>/dev/null"))
-	end
+	uci:set("shadowsocksr", sid, "enabled", enabled)
+	uci:save("shadowsocksr")
+	uci:commit("shadowsocksr")
 
-	if subscribe_sid then
-		local values = {
-			auto_update = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update"),
-			config_auto_update_mode = form("cbid.shadowsocksr." .. subscribe_sid .. ".config_auto_update_mode"),
-			auto_update_week_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_week_time"),
-			auto_update_day_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_day_time"),
-			auto_update_min_time = form("cbid.shadowsocksr." .. subscribe_sid .. ".auto_update_min_time"),
-			config_update_interval = form("cbid.shadowsocksr." .. subscribe_sid .. ".config_update_interval"),
-			subscribe_advanced = form("cbid.shadowsocksr." .. subscribe_sid .. ".subscribe_advanced"),
-			filter_words = form("cbid.shadowsocksr." .. subscribe_sid .. ".filter_words"),
-			save_words = form("cbid.shadowsocksr." .. subscribe_sid .. ".save_words"),
-			allow_insecure = form("cbid.shadowsocksr." .. subscribe_sid .. ".allow_insecure"),
-			switch = form("cbid.shadowsocksr." .. subscribe_sid .. ".switch"),
-			proxy = form("cbid.shadowsocksr." .. subscribe_sid .. ".proxy"),
-			url_test_url = form("cbid.shadowsocksr." .. subscribe_sid .. ".url_test_url"),
-			user_agent = form("cbid.shadowsocksr." .. subscribe_sid .. ".user_agent")
-		}
-
-		local flags = {
-			auto_update = true,
-			subscribe_advanced = true,
-			allow_insecure = true,
-			switch = true,
-			proxy = true
-		}
-
-		for key, value in pairs(values) do
-			if value ~= nil then
-				if value == "" and not flags[key] then
-					sh_delete(subscribe_sid, key)
-				else
-					sh_set(subscribe_sid, key, flags[key] and value or value)
-				end
-			elseif flags[key] then
-				sh_set(subscribe_sid, key, "0")
-			end
-		end
-	end
-
-	local seen = {}
-	for key in pairs(http.formvaluetable() or {}) do
-		local sid = key:match("^cbid%.shadowsocksr%.([^%.]+)%.(enabled|alias|url)$")
-		if sid then
-			seen[sid] = true
-		end
-	end
-
-	uci:foreach("shadowsocksr", "server_subscribe_item", function(section)
-		local sid = section[".name"]
-		local prefix = "cbid.shadowsocksr." .. sid .. "."
-		if seen[sid] then
-			local enabled = form(prefix .. "enabled")
-			local alias = form(prefix .. "alias")
-			local url = form(prefix .. "url")
-
-			sh_set(sid, "enabled", enabled == "1" and "1" or "0")
-			if alias ~= nil then
-				if alias == "" then
-					sh_delete(sid, "alias")
-				else
-					sh_set(sid, "alias", alias)
-				end
-			end
-			if url ~= nil then
-				sh_set(sid, "url", url)
-			end
-		end
-	end)
-
-	luci.sys.call("uci -q commit shadowsocksr")
-	luci.sys.exec("rm -rf /tmp/sub_md5_*")
-	luci.http.redirect(redirect_url)
+	luci.http.prepare_content("application/json")
+	luci.http.write_json({ ret = 1, sid = sid, enabled = enabled })
 end
 
 function component_status()
@@ -875,7 +885,7 @@ function clash_client_policies()
 		active = active_sid ~= nil,
 		sid = active_sid,
 		clients = collect_lan_clients(),
-		rules = read_clash_client_rules(),
+		rules = read_clash_client_rules(sid),
 		policies = policies
 	})
 end
@@ -904,19 +914,14 @@ function clash_client_rule_save()
 		end
 	end
 
-	uci:delete_all("shadowsocksr", "clash_client_group")
-	for _, row in ipairs(rows) do
-		local rid = uci:add("shadowsocksr", "clash_client_group")
-		if rid then
-			uci:set("shadowsocksr", rid, "enabled", row.enabled)
-			uci:set("shadowsocksr", rid, "remarks", row.remarks)
-			uci:set("shadowsocksr", rid, "ip_addr", row.ip_addr)
-			uci:set("shadowsocksr", rid, "client_mac", row.client_mac)
-			uci:set("shadowsocksr", rid, "policy_group", row.policy_group)
-		end
+	if not sid or sid == "" or uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({ success = false, error = "invalid_sid" })
+		return
 	end
-	uci:save("shadowsocksr")
-	uci:commit("shadowsocksr")
+
+	write_clash_client_rules_csv(sid, rows)
 
 	local active_sid = resolve_active_clash_sid(sid)
 	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
@@ -933,16 +938,24 @@ function clash_client_rule_save()
 		success = true,
 		count = #rows,
 		reapplied = reapplied,
-		rules = read_clash_client_rules()
+		rules = read_clash_client_rules(sid)
 	})
 end
 
 function clash_client_rule_clear()
 	local sid = luci.http.formvalue("sid")
 
-	uci:delete_all("shadowsocksr", "clash_client_group")
-	uci:save("shadowsocksr")
-	uci:commit("shadowsocksr")
+	if not sid or sid == "" or uci:get("shadowsocksr", sid) ~= "servers" or uci:get("shadowsocksr", sid, "type") ~= "clash" then
+		luci.http.status(400, "Bad Request")
+		luci.http.prepare_content("application/json")
+		luci.http.write_json({ success = false, error = "invalid_sid" })
+		return
+	end
+
+	local csv_path = get_clash_client_rule_csv_path(sid)
+	if csv_path and nixio.fs.access(csv_path) then
+		nixio.fs.remove(csv_path)
+	end
 
 	local current_sid = uci:get_first("shadowsocksr", "global", "global_server")
 	local reapplied = false
