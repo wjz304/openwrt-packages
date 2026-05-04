@@ -1191,7 +1191,7 @@ function check_status()
 		}
 		e.ret = clash_delay_ok(sid, profile.candidates, profile.url) and 0 or 1
 	else
-		e.ret = luci.sys.call("/usr/bin/ssr-check www." .. target .. ".com 80 3 1")
+		e.ret = luci.sys.call("curl -m 3 -sS -o /dev/null http://www." .. target .. ".com >/dev/null 2>&1")
 	end
 	luci.http.prepare_content("application/json")
 	luci.http.write_json(e)

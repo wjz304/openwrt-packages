@@ -452,6 +452,254 @@ local function generate_tuic_runtime(sid, output_path, local_port, socks_port, m
 	return true
 end
 
+local function parse_plugin_opts(value)
+	local result = {}
+	for part in tostring(value or ""):gmatch("[^;]+") do
+		local key, val = part:match("^%s*([^=]+)=?(.*)%s*$")
+		if key and key ~= "" then
+			result[key] = val or ""
+		end
+	end
+	return result
+end
+
+local function split_host_port(value)
+	local text = tostring(value or "")
+	if text == "" then
+		return "", ""
+	end
+	local host, port = text:match("^%[(.-)%]:(%d+)$")
+	if host and port then
+		return host, port
+	end
+	host, port = text:match("^(.-):(%d+)$")
+	if host and port then
+		return host, port
+	end
+	return text, ""
+end
+
+local function bool_default(value, default)
+	if value == nil or value == "" then
+		return default
+	end
+	return bool_enabled(value)
+end
+
+local function normalize_plugin_name(plugin)
+	local value = tostring(plugin or ""):lower()
+	if value == "" or value == "none" then
+		return ""
+	end
+	if value == "simple-obfs" then
+		return "obfs-local"
+	end
+	return value
+end
+
+local function build_shadowsocks_plugin(proxy, sid)
+	local plugin = normalize_plugin_name(get_server_field(sid, "plugin", ""))
+	local plugin_opts = parse_plugin_opts(get_server_field(sid, "plugin_opts", ""))
+
+	if plugin == "" then
+		return
+	end
+
+	if plugin == "obfs-local" then
+		proxy.plugin = "obfs"
+		proxy["plugin-opts"] = {
+			mode = plugin_opts.obfs or plugin_opts.mode or "http",
+			host = plugin_opts.obfs_host or plugin_opts.host or nil
+		}
+		return
+	end
+
+	if plugin == "v2ray-plugin" or plugin == "xray-plugin" then
+		proxy.plugin = "v2ray-plugin"
+		proxy["plugin-opts"] = {
+			mode = plugin_opts.mode or "websocket",
+			host = plugin_opts.host or nil,
+			path = plugin_opts.path or nil,
+			tls = bool_default(plugin_opts.tls, false),
+			mux = bool_default(plugin_opts.mux, false),
+			["skip-cert-verify"] = bool_default(plugin_opts.insecure or plugin_opts.skip_cert_verify, false)
+		}
+		return
+	end
+
+	if plugin == "shadow-tls" then
+		local host, port = split_host_port(plugin_opts.host or "")
+		local version
+		if plugin_opts.v3 == "1" or plugin_opts.version == "3" then
+			version = 3
+		elseif plugin_opts.v2 == "1" or plugin_opts.version == "2" then
+			version = 2
+		end
+		proxy.plugin = "shadow-tls"
+		proxy["plugin-opts"] = {
+			host = host ~= "" and host or nil,
+			port = tonumber(port) or nil,
+			password = plugin_opts.passwd or plugin_opts.password or nil,
+			version = version
+		}
+		return
+	end
+
+	if plugin == "kcptun" or plugin == "kcp-tun" then
+		proxy.plugin = "kcp-tun"
+		proxy["plugin-opts"] = {
+			host = plugin_opts.host or nil,
+			port = tonumber(plugin_opts.port) or nil,
+			key = plugin_opts.key or plugin_opts.passwd or plugin_opts.password or nil,
+			mode = plugin_opts.mode or nil
+		}
+		return
+	end
+
+	proxy.plugin = plugin
+	if next(plugin_opts) then
+		proxy["plugin-opts"] = plugin_opts
+	end
+end
+
+local function build_kcptun_plugin(proxy, sid)
+	if not bool_enabled(get_server_field(sid, "kcp_enable", "0")) then
+		return
+	end
+
+	proxy.plugin = "kcp-tun"
+	proxy["plugin-opts"] = {
+		host = get_server_field(sid, "server", ""),
+		port = tonumber(get_server_field(sid, "kcp_port", "0")) or nil,
+		key = get_server_field(sid, "kcp_password", ""),
+		mode = "fast",
+		mtu = 1350
+	}
+end
+
+local function build_shadowsocks_runtime_doc(sid, local_port, socks_port, mode)
+	local dns_mode = uci:get_first("shadowsocksr", "global", "pdnsd_enable", "0")
+	local server = get_server_field(sid, "server", "")
+	local server_port = tonumber(get_server_field(sid, "server_port", "0")) or 0
+	local method = get_server_field(sid, "encrypt_method_ss", "none")
+	local password = get_server_field(sid, "password", "")
+	local proxy = {
+		name = sid,
+		type = "ss",
+		server = server,
+		port = server_port,
+		cipher = method,
+		password = password,
+		udp = true,
+		tfo = bool_enabled(get_server_field(sid, "fast_open", "0"))
+	}
+
+	if get_server_field(sid, "type", "") == "ss" then
+		build_kcptun_plugin(proxy, sid)
+	end
+	if proxy.plugin == nil then
+		build_shadowsocks_plugin(proxy, sid)
+	end
+
+	local doc = {
+		["allow-lan"] = true,
+		["bind-address"] = "0.0.0.0",
+		mode = "rule",
+		["log-level"] = "silent",
+		["find-process-mode"] = "off",
+		["unified-delay"] = true,
+		["tcp-concurrent"] = true,
+		["routing-mark"] = 255,
+		proxies = { proxy },
+		["proxy-groups"] = {
+			{
+				name = "PROXY",
+				type = "select",
+				proxies = { sid }
+			}
+		},
+		rules = { "MATCH,PROXY" },
+		tun = { enable = false },
+		profile = { ["store-selected"] = true },
+		dns = {
+			enable = dns_mode == "7",
+			["enhanced-mode"] = "redir-host",
+			listen = "127.0.0.1:5335",
+			ipv6 = get_filter_aaaa() ~= "1"
+		}
+	}
+
+	local listen_port = tonumber(local_port)
+	local socks_listen = tonumber(socks_port)
+	if mode == "socks" then
+		doc["socks-port"] = listen_port
+	else
+		doc["redir-port"] = listen_port
+		doc["tproxy-port"] = listen_port
+		if socks_listen and socks_listen > 0 then
+			doc["socks-port"] = socks_listen
+		end
+	end
+
+	return doc
+end
+
+local function generate_shadowsocks_runtime(sid, output_path, local_port, socks_port, mode)
+	local doc = build_shadowsocks_runtime_doc(sid, local_port, socks_port, mode)
+	local ok, rendered = pcall(lyaml.dump, { doc })
+	if not ok or not rendered then
+		io.stderr:write("dump_failed\n")
+		return false
+	end
+	write_file(output_path, rendered)
+	return true
+end
+
+local function build_shadowsocks_server_doc(sid)
+	local server_port = tonumber(get_server_field(sid, "server_port", "0")) or 0
+	local method = get_server_field(sid, "encrypt_method_ss", "aes-128-gcm")
+	local password = get_server_field(sid, "password", "")
+	local listener = {
+		name = sid,
+		type = "shadowsocks",
+		listen = "::",
+		port = server_port,
+		cipher = method,
+		password = password,
+		udp = true,
+		tfo = bool_enabled(get_server_field(sid, "fast_open", "0"))
+	}
+
+	local plugin = normalize_plugin_name(get_server_field(sid, "plugin", ""))
+	if plugin == "obfs-local" then
+		local plugin_opts = parse_plugin_opts(get_server_field(sid, "plugin_opts", ""))
+		listener.obfs = plugin_opts.obfs or plugin_opts.mode or "http"
+		listener.obfs_opts = {
+			mode = plugin_opts.obfs or plugin_opts.mode or "http",
+			host = plugin_opts.obfs_host or plugin_opts.host or nil
+		}
+	end
+
+	return {
+		["allow-lan"] = true,
+		["bind-address"] = "*",
+		["log-level"] = "silent",
+		["find-process-mode"] = "off",
+		listeners = { listener }
+	}
+end
+
+local function generate_shadowsocks_server(sid, output_path)
+	local doc = build_shadowsocks_server_doc(sid)
+	local ok, rendered = pcall(lyaml.dump, { doc })
+	if not ok or not rendered then
+		io.stderr:write("dump_failed\n")
+		return false
+	end
+	write_file(output_path, rendered)
+	return true
+end
+
 local action = arg[1]
 if action == "validate" then
 	os.exit(validate(arg[2]) and 0 or 1)
@@ -465,7 +713,11 @@ elseif action == "append_client_policy_rules" then
 	os.exit(append_client_policy_rules(arg[2]) and 0 or 1)
 elseif action == "tuic" then
 	os.exit(generate_tuic_runtime(arg[2], arg[3], arg[4], arg[5], arg[6]) and 0 or 1)
+elseif action == "ss" then
+	os.exit(generate_shadowsocks_runtime(arg[2], arg[3], arg[4], arg[5], arg[6]) and 0 or 1)
+elseif action == "ss_server" then
+	os.exit(generate_shadowsocks_server(arg[2], arg[3]) and 0 or 1)
 else
-	io.stderr:write("usage: clash_yaml.lua validate <yaml> | filter <yaml> <words> | prepare <input> <output> | merge <raw> <overlay> <output> | append_client_policy_rules <runtime_yaml> | tuic <sid> <output> <local_port> [socks_port] [mode]\n")
+	io.stderr:write("usage: clash_yaml.lua validate <yaml> | filter <yaml> <words> | prepare <input> <output> | merge <raw> <overlay> <output> | append_client_policy_rules <runtime_yaml> | tuic <sid> <output> <local_port> [socks_port] [mode] | ss <sid> <output> <local_port> [socks_port] [mode] | ss_server <sid> <output>\n")
 	os.exit(1)
 end
