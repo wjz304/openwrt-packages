@@ -33,8 +33,8 @@ local local_clash_dir = "/etc/ssrplus/clash"
 local target_subscribe_sid = tostring(arg and arg[1] or ""):gsub("^%s*(.-)%s*$", "%1")
 
 local has_ss_rust = luci.sys.exec('type -t -p sslocal 2>/dev/null || type -t -p ssserver 2>/dev/null') ~= ""
-local has_ss_libev = luci.sys.exec('type -t -p ss-redir 2>/dev/null || type -t -p ss-local 2>/dev/null') ~= ""
 local has_xray = luci.sys.exec('type -t -p xray 2>/dev/null') ~= ""
+local has_mihomo = luci.sys.exec('type -t -p mihomo -p /usr/libexec/mihomo 2>/dev/null') ~= ""
 
 local tuic_type = luci.sys.exec('type -t -p mihomo -p /usr/libexec/mihomo 2>/dev/null') ~= "" and "tuic"
 local log = function(...)
@@ -42,11 +42,11 @@ local log = function(...)
 end
 
 local function preferred_ss_backend()
+	if has_mihomo then
+		return "ss"
+	end
 	if has_ss_rust then
 		return "ss-rust"
-	end
-	if has_ss_libev then
-		return "ss-libev"
 	end
 	if has_xray then
 		return "v2ray"
@@ -993,7 +993,7 @@ local function processData(szType, content, cfgid)
 				if result.plugin ~= "none" and result.plugin ~= "" then
 					result.enable_plugin = 1
 				end
-			elseif selected_ss_backend ~= "ss-libev" then
+			else
 				if params["shadow-tls"] then
 					-- 特别处理 shadow-tls 作为插件
 					-- log("原始 shadow-tls 参数:", params["shadow-tls"])
@@ -1018,11 +1018,6 @@ local function processData(szType, content, cfgid)
 							log("shadow-tls JSON 解析失败")
 						end
 					end
-				end
-			else
-				if params["shadow-tls"] then
-					log("错误：ShadowSocks-libev 不支持使用 shadow-tls 插件")
-					return nil, "ShadowSocks-libev 不支持使用 shadow-tls 插件"
 				end
 			end
 

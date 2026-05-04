@@ -79,16 +79,34 @@ if [ -s "/etc/config/shadowsocksr" ]; then
         uci -q delete shadowsocksr.@global[0].mosdns_ipv6
     fi
 
-    if ! uci -q get shadowsocksr.@http_proxy[0] > /dev/null; then
-        uci -q add shadowsocksr http_proxy
-        uci -q set shadowsocksr.@http_proxy[0].server='nil'
-        uci -q set shadowsocksr.@http_proxy[0].local_port='3128'
-        uci -q set shadowsocksr.@http_proxy[0].socks_port='1081'
-        uci -q set shadowsocksr.@http_proxy[0].http_auth='none'
-    fi
+	if ! uci -q get shadowsocksr.@http_proxy[0] > /dev/null; then
+	    uci -q add shadowsocksr http_proxy
+	    uci -q set shadowsocksr.@http_proxy[0].server='nil'
+	    uci -q set shadowsocksr.@http_proxy[0].local_port='3128'
+	    uci -q set shadowsocksr.@http_proxy[0].socks_port='1081'
+	    uci -q set shadowsocksr.@http_proxy[0].http_auth='none'
+	fi
 
-    uci -q commit shadowsocksr
-fi
+	ss_rust_bin="$(command -v ssserver 2>/dev/null)"
+	[ -n "$ss_rust_bin" ] || [ ! -x /usr/libexec/ssserver ] || ss_rust_bin="/usr/libexec/ssserver"
+	xray_bin="$(command -v xray 2>/dev/null)"
+	[ -n "$xray_bin" ] || [ ! -x /usr/libexec/xray ] || xray_bin="/usr/libexec/xray"
+	for section in $(uci -q show shadowsocksr | sed -n "s/^shadowsocksr\\.\\([^.=][^.=]*\\)=servers$/\\1/p"); do
+	    node_type="$(uci -q get shadowsocksr.${section}.type)"
+	    case "$node_type" in
+	        ss|ss-libev)
+	            if [ -n "$ss_rust_bin" ]; then
+	                uci -q set shadowsocksr.${section}.type='ss-rust'
+	            elif [ -n "$xray_bin" ]; then
+	                uci -q set shadowsocksr.${section}.type='v2ray'
+	                uci -q set shadowsocksr.${section}.v2ray_protocol='shadowsocks'
+	            fi
+	            ;;
+	    esac
+	done
+
+	uci -q commit shadowsocksr
+	fi
 
 [ -s "/etc/config/shadowsocksr" ] || /etc/init.d/shadowsocksr reset
 

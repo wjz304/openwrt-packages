@@ -49,7 +49,7 @@ local b64decode = nixio.bin.b64decode
 local b64encode = nixio.bin.b64encode
 local effective_node_local_port = tonumber(server.local_port) or tonumber(default_node_local_port) or 1234
 
-if server.type == "ss-rust" or server.type == "ss-libev" then
+if server.type == "ss-rust" then
     server.type = "ss"
 end
 

@@ -17,11 +17,6 @@ msgstr ""
 msgid "%s Node Use Type"
 msgstr "%s 节点使用类型"
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:409
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:227
-msgid "%s Node Use Version"
-msgstr "%s 节点使用版本"
-
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/server.lua:103
 msgid "0"
 msgstr ""
@@ -542,14 +537,6 @@ msgstr "正在检查..."
 msgid "China IP Data"
 msgstr "【中国大陆 IP 段】数据库"
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:255
-msgid "ChinaDNS-NG query protocol"
-msgstr "ChinaDNS-NG 查询协议"
-
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:226
-msgid "ChinaDNS-NG shunt query protocol"
-msgstr "ChinaDNS-NG 分流查询协议"
-
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:89
 msgid "Chnroute Update url"
 msgstr "中国大陆 IP 段更新 URL"
@@ -794,10 +781,6 @@ msgstr "禁止连接的域名"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/control.lua:37
 msgid "Disable"
 msgstr "停用"
-
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:263
-msgid "Disable ChinaDNS-NG"
-msgstr "直通模式（禁用 ChinaDNS-NG）"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:152
 msgid "Disable IPv6 In MosDNS Query Mode (Shunt Mode)"
@@ -1633,9 +1616,9 @@ msgstr ""
 msgid "No Check"
 msgstr "未检查"
 
-#: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:209
-msgid "No available core (Hysteria2 or Xray) to import this node."
-msgstr "没有可用的核心（Hysteria2 或 Xray）可以导入此节点。"
+#: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:154
+msgid "No available Xray core to import this Hysteria2 node."
+msgstr "没有可用的 Xray 核心可以导入此 Hysteria2 节点。"
 
 #: applications/luci-app-ssr-plus/luasrc/view/shadowsocksr/ssrurl.htm:632
 msgid "No available core (Shadowsocks or Xray) to import this node."
@@ -2136,11 +2119,6 @@ msgstr "正在保存新的顺序…"
 msgid "Select DNS parse Mode"
 msgstr "选择 DNS 解析方式"
 
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:410
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:228
-msgid "Selection ShadowSocks Node Use Version."
-msgstr "选择 ShadowSocks 节点使用版本。"
-
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:1593
 msgid "Self-signed Certificate"
 msgstr "自签证书"
@@ -2211,11 +2189,6 @@ msgstr "代理链类型"
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/server-config.lua:89
 msgid "ShadowSocks"
 msgstr ""
-
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:415
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/servers.lua:101
-msgid "ShadowSocks-libev Version"
-msgstr "ShadowSocks-libev 版本"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:412
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client-config.lua:749
@@ -2601,11 +2574,6 @@ msgstr "Clash YAML 路径"
 
 msgid "Please specify either a Clash subscription URL or a local YAML path."
 msgstr "请填写 Clash 订阅 URL 或本地 YAML 路径中的至少一项。"
-
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:120
-#: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:144
-msgid "Use ChinaDNS-NG query and cache"
-msgstr "使用 ChinaDNS-NG 查询并缓存"
 
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/advanced.lua:168
 #: applications/luci-app-ssr-plus/luasrc/model/cbi/shadowsocksr/client.lua:196
