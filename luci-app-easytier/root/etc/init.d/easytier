@@ -571,17 +571,13 @@ start_et() {
 				[ "$relay_kcp" = "0" ] || core_cmd="${core_cmd} --enable-relay-foreign-network-kcp true"
 				[ -z "$udp_white_port" ] || core_cmd="${core_cmd} --udp-whitelist $udp_white_port"
 				[ -z "$tcp_white_port" ] || core_cmd="${core_cmd} --tcp-whitelist $tcp_white_port"
-					if [ ! -z "$extra_args" ] ; then
-						if [[ "$(grep "list extra_args" /etc/config/easytier | awk '{print $3}' | wc -l ) " -eq 1 ]]; then
-							core_cmd="${core_cmd} $extra_args"
-						else
-							while IFS= read -r extra_arg; do
-								core_cmd="${core_cmd} $extra_arg"
-							done <<EOF
-$(grep 'list extra_args' /etc/config/easytier | sed -n "s/^[[:space:]]*list[[:space:]]\\+extra_args[[:space:]]\\+'\\(.*\\)'[[:space:]]*$/\\1/p")
+				if [ -n "$extra_args" ] ; then
+					while IFS= read -r extra_arg; do
+						[ -n "$extra_arg" ] && core_cmd="${core_cmd} $extra_arg"
+					done <<EOF
+$(sed -n "s/^[[:space:]]*list[[:space:]]\\+extra_args[[:space:]]\\+'\\(.*\\)'[[:space:]]*$/\\1/p" /etc/config/easytier)
 EOF
-						fi
-					fi
+				fi
 				
 				echo "$(date '+%Y-%m-%d %H:%M:%S') easytier : 运行 ${easytierbin} ${core_cmd} --console-log-level ${log}" >>/tmp/easytier.log
 				
