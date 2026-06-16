@@ -10,6 +10,7 @@ if [ "${action:0:9}" = "AUTOCONF=" ]; then
 fi
 
 IS_ROOT=/tmp/is-root
+TMP_SELF_COPY=/var/run/cloned-is-opkg
 DL_DIR=${IS_ROOT}/tmp/dl
 LISTS_DIR_O=/tmp/opkg-lists
 LISTS_DIR=${IS_ROOT}${LISTS_DIR_O}
@@ -160,6 +161,16 @@ wrapped_in_update() {
     eval "$@"
 }
 
+refresh_installed() {
+    local pkg
+    for pkg in $@; do
+        [[ $pkg == app-meta-* ]] || continue
+        pkg="/usr/lib/opkg/meta/${pkg#app-meta-}.json"
+        [[ -f "$pkg" ]] && touch "$pkg"
+    done
+    return 0
+}
+
 step_upgrade() {
     local pkg
     local pkgs=""
@@ -176,6 +187,7 @@ step_upgrade() {
     fi
     if [ -n "$metapkg" ]; then
         opkg_wrap_mirrors upgrade $metapkg || return 1
+        refresh_installed $metapkg
     fi
     return 0
 }
@@ -334,6 +346,12 @@ usage() {
     exit 1
 }
 
+if [[ "$action" = "do_self_upgrade" && "$0" != "$TMP_SELF_COPY" ]]; then
+    echo "copy self $0 to $TMP_SELF_COPY when self upgrade"
+    cp -af "$0" "$TMP_SELF_COPY" || exit 1
+    exec "$TMP_SELF_COPY" do_self_upgrade "$@" || exit 1
+fi
+
 is_init >/dev/null 2>&1
 
 CLEANPATH="$PATH"
@@ -352,7 +370,7 @@ case $action in
     ;;
     "install")
         check_space
-        wrapped_in_update opkg_wrap_mirrors install "$@" && try_upgrade_depends "$1" && try_autoconf
+        wrapped_in_update opkg_wrap_mirrors install "$@" && refresh_installed "$1" && try_upgrade_depends "$1" && try_autoconf
     ;;
     "autoconf")
         try_autoconf
