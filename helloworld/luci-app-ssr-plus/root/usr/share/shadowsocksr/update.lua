@@ -43,7 +43,7 @@ local excluded_domain = {
 local mydnsip = '127.0.0.1'
 local mydnsport = '5335'
 local ipsetname = 'gfwlist'
-local new_appledns = uci:get_first("shadowsocksr", "global", "apple_dns")
+local new_appledns = uci:get_first("shadowsocksr", "global", "apple_dns", "")
 local bc = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
 -- base64decoding
 local function base64_dec(data)
