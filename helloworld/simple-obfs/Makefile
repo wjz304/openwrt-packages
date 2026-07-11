@@ -1,24 +1,20 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Copyright (C) 2017-2019 Jian Chang <aa65535@live.com>
-#
-# Copyright (C) 2021 ImmortalWrt
-# <https://immortalwrt.org>
-#
-# This is free software, licensed under the GNU General Public License v3.
-# See /LICENSE for more information.
-#
+# Copyright (C) 2021 ImmortalWrt.org
 
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=simple-obfs
 PKG_VERSION:=0.0.5
-PKG_RELEASE:=3
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL:=https://github.com/shadowsocks/simple-obfs.git
 PKG_SOURCE_DATE:=2019-08-17
 PKG_SOURCE_VERSION:=486bebd9208539058e57e23a12f23103016e09b4
-PKG_MIRROR_HASH:=bc97eba511b86a089ab4bcf0ac78d9e4a39c59046d5cde77b79a118245daa0ba
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
+PKG_MIRROR_HASH:=0406ff9b03d8bb7e639b52818d2efbf4026f50a082a54a15d6b314db244d19b3
 
 PKG_LICENSE:=GPL-3.0-or-later
 PKG_LICENSE_FILES:=LICENSE
@@ -32,26 +28,26 @@ PKG_INSTALL:=1
 include $(INCLUDE_DIR)/package.mk
 
 define Package/simple-obfs/template
-	SECTION:=net
-	CATEGORY:=Network
-	TITLE:=Simple-obfs
-	URL:=https://github.com/shadowsocks/simple-obfs
-	DEPENDS:=+libpthread +libev
+  SECTION:=net
+  CATEGORY:=Network
+  TITLE:=A simple obfuscating tool
+  URL:=https://github.com/shadowsocks/simple-obfs
+  DEPENDS:=+libpthread +libev
 endef
 
 define Package/simple-obfs-client
-	$(call Package/simple-obfs/template)
-	TITLE+= (client)
-	PROVIDES:=simple-obfs
+  $(call Package/simple-obfs/template)
+  TITLE+= (client)
+  PROVIDES:=simple-obfs
 endef
 
 define Package/simple-obfs-server
-	$(call Package/simple-obfs/template)
-	TITLE+= (server)
+  $(call Package/simple-obfs/template)
+  TITLE+= (server)
 endef
 
 define Package/simple-obfs/description
-	Simple-obfs is a simple obfusacting tool, designed as plugin server of shadowsocks.
+  Simple-obfs is a simple obfusacting tool, designed as plugin server of shadowsocks.
 endef
 
 Package/simple-obfs-client/description = $(Package/simple-obfs/description)
@@ -64,12 +60,12 @@ CONFIGURE_ARGS += \
 
 define Package/simple-obfs-client/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/obfs-local $(1)/usr/bin/obfs-local
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/obfs-local $(1)/usr/bin/
 endef
 
 define Package/simple-obfs-server/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/obfs-server $(1)/usr/bin/obfs-server
+	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/obfs-server $(1)/usr/bin/
 endef
 
 $(eval $(call BuildPackage,simple-obfs-client))
