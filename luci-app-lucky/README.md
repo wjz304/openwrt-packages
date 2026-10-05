@@ -1,97 +1,50 @@
+# luci-app-lucky
 
-## 怎么确定当前系统CPU架构下载相应lucky核心包
-复制以下指令到终端执行,根据显示下载文件名含有架构字符串的ipk包
-```
-cd /tmp ;if [ -f /usr/bin/curl ];then curl -sSO http://release.66666.host/luckyarch.sh;else wget -O http://release.66666.host/luckyarch.sh;fi;sh luckyarch.sh 
-```
+OpenWrt 的 Lucky 核心包与 LuCI 管理界面，支持服务管理、打开 Lucky 后台及手动刷新状态。
 
+- `lucky`：Lucky 核心。
+- `luci-app-lucky`：LuCI 管理界面。
+- `luci-i18n-lucky-zh-cn`：简体中文语言包。
 
-## 1.X升级2.X版本注意
+## 兼容性
 
-第一种方法：先通过lucky后台上传tar.gz方式升级lucky
-再安装
+支持 OpenWrt 19.07、21.02、22.03、23.05、24.10（IPK）及 25.12 / Snapshot（APK）。请选择与设备的 OpenWrt 版本和包架构匹配的软件包。
 
-- luci-app-lucky 
-- luci-i18n-lucky-zh-cn 
+## 安装与升级
 
-两个ipk包
+将对应的软件包上传到路由器 `/tmp`，在路由器终端执行。
 
-第二种方法：
+**IPK：**
 
-lucky后台备份配置下载保存后，将lucky相关IPK卸载干净
-```
-opkg remove lucky
-opkg remove luci-i18n-lucky-zh-cn
-opkg remove luci-app-lucky
+```sh
+opkg install /tmp/lucky_*.ipk
+opkg install /tmp/luci-app-lucky_*.ipk /tmp/luci-i18n-lucky-zh-cn_*.ipk
 ```
 
-再安装 
-- lucky 
-- luci-app-lucky 
-- luci-i18n-lucky-zh-cn 
+**APK：**
 
-三个ipk包
-
-
-
-本分支本人自用,仅供参考.
-配置文件架构和https://github.com/sirpdboy/luci-app-lucky 版本可能存在冲突,
-
-替换版本前请使用前备份下载lucky配置
-
-然后执行执行
+```sh
+apk add --allow-untrusted /tmp/lucky-*.apk
+apk add --allow-untrusted /tmp/luci-app-lucky-*.apk /tmp/luci-i18n-lucky-zh-cn-*.apk
 ```
-opkg remove lucky
-opkg remove luci-i18n-lucky-zh-cn
-opkg remove luci-app-lucky
-```
-卸载删除干净之前文件.
 
+安装后进入 LuCI 的 **服务 → Lucky**。
 
+旧版可直接安装新版软件包升级，无需先卸载。升级会保留服务配置和 Lucky 数据，建议提前在 Lucky 后台导出备份。
 
+## 构建与开发
 
-最新版本编译好的IPK包请在
-https://url21.ctfile.com/d/44547821-55537427-a5525e?p=16601
-下载
+参见 [构建说明](BUILDING.md) 和 [贡献说明](CONTRIBUTING.md)。
 
+## 界面预览
 
+以下为旧版截图，v3 界面随 LuCI 主题自适应。
 
+![Lucky 界面预览](./previews/001.png)
 
+![Lucky 设置预览](./previews/002.png)
 
-## 使用方法
-   
-- 将luci-app-lucky添加至 LEDE/OpenWRT 源码的方法。
+## License
 
-
-
-### 下载源码：
-
- ```Brach 
- 
-    进入lede/openwrt项目根目录下
-    # 下载源码
-	
-    git clone  https://github.com/gdy666/luci-app-lucky.git package/lucky
-	
- ``` 
-### 配置菜单
-
- ```Brach
-    make menuconfig
-	# 找到 LuCI -> Applications, 选择 luci-app-lucky, 保存后退出。
- ``` 
- 
-### 编译
-
- ```Brach 
-    # 编译lucky IPK包
-    make package/lucky/lucky/compile V=s
-    # 编译luci-app-lucky IPK包
-    make package/lucky/luci-app-lucky/compile V=s
-    
- ```
-
-
-## 截图
-![](./previews/001.png)
-![](./previews/002.png)
+- Lucky 核心：MIT
+- LuCI 管理界面：Apache-2.0
